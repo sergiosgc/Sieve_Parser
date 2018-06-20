@@ -1,2 +1,2 @@
 # Sieve_Parser
-A parser for Sieve (RFC 5228(
+A parser for Sieve (RFC 5228)
