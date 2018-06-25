@@ -1,5 +1,5 @@
 {
-    "name": "sergiosgc/Sieve_Parser",
+    "name": "sergiosgc/sieve_parser",
     "description": "Sieve_Parser is a text parser for the Sieve email filtering language, as defined by RFC 5228",
     "keywords": ["parser", "sieve"],
     "type": "library",
