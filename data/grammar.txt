@@ -17,16 +17,63 @@ $command->getValue()->comment = $comment->getValue();
 return new \sergiosgc\Text_Tokenizer_Token('<commented-command>', $command->getValue());
 >>>
 
+<command> ::= <identifier-stop> <semicolon>
+<<<
+$result = new \sergiosgc\Sieve_Parser\Script_Command_Stop();
+>>>
+
+<command> ::= <identifier-fileinto> <string>(mailbox) <semicolon>
+<<<
+$result = new \sergiosgc\Sieve_Parser\Script_Command_Fileinto($mailbox->getValue());
+>>>
+
+<command> ::= <identifier-redirect> <string>(address) <semicolon>
+<<<
+$result = new \sergiosgc\Sieve_Parser\Script_Command_Redirect($address->getValue());
+>>>
+
+<command> ::= <identifier-keep> <semicolon>
+<<<
+$result = new \sergiosgc\Sieve_Parser\Script_Command_Keep();
+>>>
+
+<command> ::= <identifier-discard> <semicolon>
+<<<
+$result = new \sergiosgc\Sieve_Parser\Script_Command_Discard();
+>>>
+
+<command> ::= <identifier-require> <string-list>(capabilities) <semicolon>
+<<<
+$result = new \sergiosgc\Sieve_Parser\Script_Command_Require($capabilities->getValue());
+>>>
+
+<command> ::= <identifier-if> <test>(test) <bracket-open> <block>(block) | <identifier-if> <test>(test) <bracket-open> <block>(block) <command-elsif>(else) | <identifier-if> <test>(test) <bracket-open> <block>(block) <command-else>(else)
+<<<
+$result = isset($else) ? $else->getValue() : [];
+array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
+$result = new \sergiosgc\Sieve_Parser\Script_Command_If($result);
+>>>
+
+<command-elsif> ::= <identifier-elsif> <test>(test) <bracket-open> <block>(block) | <identifier-elsif> <test>(test) <bracket-open> <block>(block) <command-elsif>(else) | <identifier-elsif> <test>(test) <bracket-open> <block>(block) <command-else>(else)
+<<<
+$result = isset($else) ? $else->getValue() : [];
+array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
+>>>
+
+<command-else> ::= <identifier-else> <bracket-open> <block>(block)
+<<<
+$result = [[ 'test' => null, 'commands' => $block->getValue() ]];
+>>>
+
 <command> ::=<identifier>(id) <arguments>(args) <semicolon> | <identifier>(id) <arguments>(args) <bracket-open> <block>(block) | <identifier>(id) <semicolon> | <identifier>(id) <bracket-open> <block>(block)
 <<<
 if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
 if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
-return new \sergiosgc\Text_Tokenizer_Token('<command>', 
-    new \sergiosgc\Sieve_Parser\Script_Command(
-        $id->getValue(),
-        $args->getValue()['arguments'],
-        $args->getValue()['tests'],
-        $block->getValue()));
+$result = new \sergiosgc\Sieve_Parser\Script_Command(
+    $id->getValue(),
+    $args->getValue()['arguments'],
+    $args->getValue()['tests'],
+    $block->getValue());
 >>>
 
 <block> ::= <command>(command) <block>(acc) | <bracket-close>
@@ -41,8 +88,7 @@ return $acc;
 if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
 if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
 if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
-return new \sergiosgc\Text_Tokenizer_Token('<arguments>', 
-    [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ]);
+$result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
 >>>
 
 <arguments-plus> ::= <arguments-plus>(acc) <argument>(arg) | <argument>(arg)
@@ -55,12 +101,12 @@ return $acc;
 <test> ::= <identifier>(id) <arguments>(args) | <identifier>(id)
 <<<
 if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', []);
-return new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), $args->getValue());
+$result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), $args->getValue()['arguments']);
 >>>
 
 <test-list> ::= <parenthesis-open> <test-plus-csv>(tests) <parenthesis-close>
 <<<
-return new \sergiosgc\Text_Tokenizer_Token('<test-list>', $tests->getValue());
+$result = $tests->getValue();
 >>>
 
 <test-plus-csv> ::= <test>(test) | <test>(test) <comma> <test-plus-csv>(acc)
@@ -73,12 +119,12 @@ return $acc;
 <argument> ::= <string-list>(arg) | <number>(arg) | <tag>(tag)
 <<<
 if (isset($tag)) return new \sergiosgc\Text_Tokenizer_Token('<argument>', new \sergiosgc\Sieve_Parser\Script_Tag($tag->getValue()));
-return new \sergiosgc\Text_Tokenizer_Token('<argument>', $arg->getValue());
+$result = $arg->getValue();
 >>>
 
 <string-list> ::= <square-parenthesis-open> <string-plus-csv>(strArr) <square-parenthesis-close> | <string>(str)
 <<<
-if (isset($str)) return new \sergiosgc\Text_Tokenizer_Token('<string-list>', [ $str->getValue() ]);
+if (isset($str)) return new \sergiosgc\Text_Tokenizer_Token('<string-list>', $str->getValue());
 return new \sergiosgc\Text_Tokenizer_Token('<string-list>', $strArr->getValue());
 >>>
 
@@ -91,12 +137,9 @@ return $acc;
 
 <string> ::= <quoted-string>(quoted) | <multi-line>(multiline)
 <<<
-return new \sergiosgc\Text_Tokenizer_Token(
-    '<string>',
-    isset($quoted) ?
-        strtr($quoted->getValue(), [ '\\r' => "\r", '\\n' => "\n", '\\\\' => '\\' ]) : # Unquote string
-        substr($multiline->getValue(), 0, -3) # Remove .CRLF marker
-    );
+$result = isset($quoted) ?
+    strtr($quoted->getValue(), [ '\\r' => "\r", '\\n' => "\n", '\\\\' => '\\' ]) : # Unquote string
+    substr($multiline->getValue(), 0, -3); # Remove .CRLF marker
 >>>
 
 <comment> ::= <comment>(comment) <single-comment>(singleComment) | <single-comment>(singleComment)
@@ -105,14 +148,10 @@ if (isset($comment)) {
     $comment->getValue()->text .= $singleComment->getValue();
     return $comment;
 }
-return new \sergiosgc\Text_Tokenizer_Token(
-    '<comment>',
-    new \sergiosgc\Sieve_Parser\Script_Comment($singleComment->getValue()));
+$result = new \sergiosgc\Sieve_Parser\Script_Comment($singleComment->getValue());
 >>>
 
 <single-comment> ::= <hash-comment>(comment) | <bracket-comment>(comment)
 <<<
-return new \sergiosgc\Text_Tokenizer_Token(
-    '<single-comment>',
-    new \sergiosgc\Sieve_Parser\Script_Comment($comment->getValue()));
+$result = $comment->getValue();
 >>>

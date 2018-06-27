@@ -1,3 +1,7 @@
+# A line
+# Requires
+require ["fileinto", "imap4flags"];
+
 # Whitelist addresses
 if address :all :comparator "i;ascii-casemap" :is ["From", "Sender", "Resent-From"] ["example@gmail.com.example.com", "example2@gmail.com.example.com"]  {
     keep;

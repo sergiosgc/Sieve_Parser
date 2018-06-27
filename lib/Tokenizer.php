@@ -33,16 +33,16 @@ class Tokenizer extends \sergiosgc\Text_Tokenizer_Regex {
 //                       ; either a CRLF pair, OR a single octet
 //                       ; other than NUL, CR, LF, star, or slash
         // The regex is a reinterpretation of all these tokens: "/*" followed by zero or more characters other than the sequence "*/"
-        //   terminated by "*/". It allows a lone LFi (not in a CRLF pair), it allows NUL, which the original doesn't; it is assumed 
+        //   terminated by "*/". It allows a lone LF (not in a CRLF pair), it allows NUL, which the original doesn't; it is assumed 
         //   to be non-problematic.
-        $this->addRegex('@([ \\r\\n\\t])*(?<comment>/[*]([^*]|[*][^/])*[*])/@Am', '<bracket-comment>', '<comment>');
+        $this->addRegex('@([ \\r\\n\\t])*/[*](?<comment>([^*]|[*][^/])*)[*]/@Am', '<bracket-comment>', '<comment>');
 
 // Pg 35
 // comment            = bracket-comment / hash-comment
 // Moved to grammar
 
 // hash-comment       = "#" *octet-not-crlf CRLF
-        $this->addRegex('@([ \\r\\n\\t])*(?<comment>#[^\\r\\n]*\\r\\n)@Am', '<hash-comment>', '<comment>');
+        $this->addRegex('@([ \\r\\n\\t])*#(?<comment>[^\\r\\n]*\\r\\n)@A', '<hash-comment>', '<comment>');
 
 //multi-line         = "text:" *(SP / HTAB) (hash-comment / CRLF)
 //                      *(multiline-literal / multiline-dotstart)
@@ -60,6 +60,15 @@ class Tokenizer extends \sergiosgc\Text_Tokenizer_Regex {
         $this->addRegex('@([ \\r\\n\\t])*text:(?<text>[ \\t]*(#[^\\r\\n]*)?\\r\\n([.][^\\r]+\\r\\n|[^.\\r]*\\r\\n)*[.]\\r\\n)@Am', '<multi-line>', '<text>');
 // identifier         = (ALPHA / "_") *(ALPHA / DIGIT / "_")
 		// Out of order so that it does not capture the "text:" in <multi-line>
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>if)@Ai', '<identifier-if>', '<identifier>');
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>elsif)@Ai', '<identifier-elsif>', '<identifier>');
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>else)@Ai', '<identifier-else>', '<identifier>');
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>require)@Ai', '<identifier-require>', '<identifier>');
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>stop)@Ai', '<identifier-stop>', '<identifier>');
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>fileinto)@Ai', '<identifier-fileinto>', '<identifier>');
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>keep)@Ai', '<identifier-keep>', '<identifier>');
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>redirect)@Ai', '<identifier-redirect>', '<identifier>');
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>discard)@Ai', '<identifier-discard>', '<identifier>');
         $this->addRegex('@([ \\r\\n\\t])*(?<identifier>[a-zA-Z_][a-zA-Z_0-9]*)@A', '<identifier>', '<identifier>');
 //  number             = 1*DIGIT [ QUANTIFIER ]
 //  QUANTIFIER         = "K" / "M" / "G"
@@ -79,7 +88,7 @@ class Tokenizer extends \sergiosgc\Text_Tokenizer_Regex {
 //   quoted-text        = *(quoted-safe / quoted-special / quoted-other)
 		$this->addRegex('@([ \\r\\n\\t])*"(?<quotedstring>(\\r\\n|[^\\x00\\x0a\\x0d"\\\\]|\\\\[^\\x00\\x0a\\x0d])*)"@Am', '<quoted-string>', '<quotedstring>');
 //   tag                = ":" identifier
-		$this->addRegex('@([ \\r\\n\\t])*(?<tag>:[a-zA-Z_][a-zA-Z_0-9]*)@A', '<tag>', '<tag>');
+		$this->addRegex('@([ \\r\\n\\t])*:(?<tag>[a-zA-Z_][a-zA-Z_0-9]*)@A', '<tag>', '<tag>');
 
 // Tokens required by single characters in the grammar definition (section 8.2 of the RFC)
         $this->addRegex('@([ \\r\\n\\t])*({)@A', '<bracket-open>');
