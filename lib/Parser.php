@@ -1632,7 +1632,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     protected function reduce_rule_32($id = null)
     {
             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', []);
-        $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), $args->getValue()['arguments']);
+        $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), array_merge($args->getValue()['arguments'], $args->getValue()['tests']));
         return new \sergiosgc\Text_Tokenizer_Token('<test>', $result);
     }
     /* }}} */
@@ -1670,7 +1670,8 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_24($args = null)
     {
-            if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+            if (isset($tests)) $debug = true;
+        if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
@@ -1689,7 +1690,8 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_27($test = null)
     {
-            if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+            if (isset($tests)) $debug = true;
+        if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
@@ -1708,7 +1710,8 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_28($tests = null)
     {
-            if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+            if (isset($tests)) $debug = true;
+        if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
@@ -1864,7 +1867,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     protected function reduce_rule_31($id = null,$args = null)
     {
             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', []);
-        $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), $args->getValue()['arguments']);
+        $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), array_merge($args->getValue()['arguments'], $args->getValue()['tests']));
         return new \sergiosgc\Text_Tokenizer_Token('<test>', $result);
     }
     /* }}} */
@@ -1944,7 +1947,8 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_25($args = null,$test = null)
     {
-            if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+            if (isset($tests)) $debug = true;
+        if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
@@ -1964,7 +1968,8 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_26($args = null,$tests = null)
     {
-            if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+            if (isset($tests)) $debug = true;
+        if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
