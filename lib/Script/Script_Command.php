@@ -23,6 +23,9 @@ class Script_Command {
         if (count($this->tests)) {
             $result .= ' ' . Script::encode($this->tests);
         }
+        if (count($this->subcommands) == 0) {
+            $result .= ';';
+        }
         if (count($this->subcommands) == 1) {
             $result .= ' ' . Script::encode($this->subcommands[0]) . ';';
         }
