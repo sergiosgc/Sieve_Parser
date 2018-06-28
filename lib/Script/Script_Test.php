@@ -10,8 +10,11 @@ class Script_Test {
     }
     public function __toString() 
     {
-        return sprintf("%s %s",
+        $nonTestArguments = array_filter($this->arguments, function($arg) { return !($arg instanceof Script_Test); });
+        $testArguments = array_filter($this->arguments, function($arg) { return $arg instanceof Script_Test; });
+        return sprintf("%s %s %s",
             $this->identifier,
-            implode(' ', array_map(array('\sergiosgc\Sieve_Parser\Script', 'encode'), $this->arguments)));
+            count($nonTestArguments) ? implode(' ', array_map(array('\sergiosgc\Sieve_Parser\Script', 'encode'), $nonTestArguments)) : '',
+            count($testArguments) ? Script::encode($testArguments) : '');
     }
 }
