@@ -1,0 +1,5 @@
+# A template
+if address :all :comparator "i;ascii-casemap" :is ["Resent-From", "Sender", "From"] ["kapoing@gmail.com", "sergiosgc@gmail.com"]  {
+  keep;
+  stop;
+}

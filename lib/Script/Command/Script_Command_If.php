@@ -31,5 +31,15 @@ class Script_Command_If extends Script_Command {
         }
         return ob_get_clean();
     }
+    public function matchesTemplate($templateIfCommand) {
+        if (get_class($templateIfCommand) != get_class()) return false;
+        if (!$this->identifierMatchesTemplate($templateIfCommand)) return false;
+        for ($i=0; $i < count($this->testsAndCommands); $i++) {
+            if (gettype($this->testsAndCommands[$i]['test']) != gettype($templateIfCommand->testsAndCommands[$i]['test'])) return false;
+            if (is_object($this->testsAndCommands[$i]['test']) && !$this->testsAndCommands[$i]['test']->matchesTemplate($templateIfCommand->testsAndCommands[$i]['test'])) return false;
+            if (!Script::commandBlockMatchesTemplate($this->testsAndCommands[$i]['commands'], $templateIfCommand->testsAndCommands[$i]['commands'])) return false;
+        }
+        return true;
+    }
 }
 

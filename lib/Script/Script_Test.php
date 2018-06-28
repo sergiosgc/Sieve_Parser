@@ -17,4 +17,9 @@ class Script_Test {
             count($nonTestArguments) ? implode(' ', array_map(array('\sergiosgc\Sieve_Parser\Script', 'encode'), $nonTestArguments)) : '',
             count($testArguments) ? Script::encode($testArguments) : '');
     }
+    public function matchesTemplate($templateTest) {
+        if (get_class($templateTest) != get_class()) return false;
+        if ($this->identifier != $templateTest->identifier) return false;
+        return Script::argumentMatchesTemplate($this->arguments, $templateTest->arguments);
+    }
 }

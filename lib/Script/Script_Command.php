@@ -36,4 +36,21 @@ class Script_Command {
         $result .= "\r\n";
         return $result;
     }
+    public function isOptionalInTemplate() {
+        if (preg_match('/optional_[a-z]+_(.*)/', $this->identifier)) return true;
+        return false;
+    }
+    public function identifierMatchesTemplate($templateCommand) {
+        if ($this->identifier == $templateCommand->identifier) return true;
+        if (preg_match('/optional_[a-z]+_(.*)/', $templateCommand->identifier, $matches) && $matches[1] == $this->identifier) return true;
+        return false;
+    }
+    public function matchesTemplate($templateCommand) {
+        if (get_class($templateCommand) != get_class()) return false;
+        if (!Script::argumentMatchesTemplate($this->arguments, $templateCommand->arguments)) return false;
+        if (count($this->tests) != count($templateCommand->tests)) return false;
+        foreach ($this->tests as $i => $t) if (!$this->tests[$i]->matchesTemplate($templateCommand->tests[$i])) return false;
+        if (!Script::commandBlockMatchesTemplate($this->subcommands, $templateCommand->subcommands)) return false;
+        return true;
+    }
 }
