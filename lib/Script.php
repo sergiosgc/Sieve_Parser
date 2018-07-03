@@ -2,16 +2,13 @@
 namespace sergiosgc\Sieve_Parser;
 
 class Script {
-    public $commands = [];
-    public function __construct($commands = [])
-    {
+    public $commands;
+    public function __construct($commands = []) {
+        if (!($commands instanceof Script_Commands)) $commands = new Script_Commands($commands);
         $this->commands = $commands;
     }
-    public function __toString() 
-    {
-        ob_start();
-        foreach($this->commands as $command) print($command);
-        return ob_get_clean();
+    public function __toString() {
+        return (string) $this->commands;
     }
     public static function encode($val) {
         if (is_object($val)) return (string) $val;
@@ -26,37 +23,49 @@ class Script {
         }
         throw new \Exception("Unexpected type");
     }
-    public static function commandBlockMatchesTemplate($localCommands, $templateCommands) {
-        $localCommandCursor = 0;
-        $templateCommandCursor = 0;
-        while ($localCommandCursor < count($localCommands) && $templateCommandCursor < count($templateCommands)) {
-            if ($localCommands[$localCommandCursor]->matchesTemplate($templateCommands[$templateCommandCursor])) { // If command matches template, consume both and continue
-                $localCommandCursor++;
-                $templateCommandCursor++;
+    public static function matchesTemplateOrIsVariable($left, $right) {
+        if (is_string($right) && strlen($right) && $right[0] == '$') return true;
+        if (is_callable(array($left, 'matchesTemplate'))) return $left->matchesTemplate($right);
+        if (is_array($left) || is_array($right)) {
+            if (is_array($left) && is_array($right)) {
+                return static::optionallyMatchesTemplate($left, $right);
+            }
+            return false;
+        }
+        return (string) $left == (string) $right;
+    }
+    public static function optionallyMatchesTemplate($leftArray, $rightArray) {
+        if (!is_array($leftArray) || !is_array($rightArray)) throw new \Exception('Arrays expected');
+        $leftCursor = $rightCursor = 0;
+        while ($leftCursor < count($leftArray) && $rightCursor < count($rightArray)) {
+            if (static::matchesTemplateOrIsVariable($leftArray[$leftCursor], $rightArray[$rightCursor])) { // Match. Consume both and continue
+                $leftCursor++;
+                $rightCursor++;
                 continue;
             }
-            if ($templateCommands[$templateCommandCursor]->isOptionalInTemplate()) { // If command didn't match template but template command is optional, consume template and continue
-                $templateCommandCursor++;
+            // No match. Try to consume optional left or right and continue
+            if (is_callable(array($leftArray[$leftCursor], 'isOptionalInTemplate')) && $leftArray[$leftCursor]->isOptionalInTemplate()) {
+                $leftCursor++;
                 continue;
             }
-            return false; // Command didn't match and template was not optional
+            if (is_callable(array($rightArray[$rightCursor], 'isOptionalInTemplate')) && $rightArray[$rightCursor]->isOptionalInTemplate()) {
+                $rightCursor++;
+                continue;
+            }
+            
+            // No match and no optional content to consume
+            return false;
         }
-        if ($localCommandCursor < count($localCommands)) return false; // Local script has more commands than template
-        while ($templateCommandCursor < count($templateCommands) && $templateCommands[$templateCommandCursor]->isOptionalInTemplate()) $templateCommandCursor++; // Consume remaining optional template commands
-        if ($templateCommandCursor < count($templateCommands)) return false; // Template has more commands than local script
-        return true; // Both local and template commands matched and have been consumed
-    }
-    public static function argumentMatchesTemplate($localArgument, $templateArgument) {
-        if (is_string($templateArgument) && strlen($templateArgument) && $templateArgument[0] == '$') return true;
-        if (gettype($localArgument) != gettype($templateArgument)) return false;
-        if (is_array($localArgument)) {
-            foreach($localArgument as $i => $item) if (!static::argumentMatchesTemplate($localArgument[$i], $templateArgument[$i])) return false; 
-            return true;
+        // Consume remaining optionals
+        while ($leftCursor < count($leftArray) && is_callable(array($leftArray[$leftCursor], 'isOptionalInTemplate')) && $leftArray[$leftCursor]->isOptionalInTemplate()) $leftCursor++;
+        while ($rightCursor < count($rightArray) && is_callable(array($rightArray[$rightCursor], 'isOptionalInTemplate')) && $rightArray[$rightCursor]->isOptionalInTemplate()) $rightCursor++;
+        if ($leftCursor < count($leftArray) || $rightCursor < count($rightArray)) {
+            return false; // Leftover in either left or right
         }
-        return $localArgument == $templateArgument;
+        return true;
     }
-    public function matchesTemplate($templateScript) {
-        return static::commandBlockMatchesTemplate($this->commands, $templateScript->commands);
+    public function matchesTemplate($template) {
+        return $this->commands->matchesTemplate($template->commands);
     }
 }
 

@@ -1,13 +1,16 @@
 <?php
 namespace sergiosgc\Sieve_Parser;
 
-class Script_Test extends Script_Command {
-    public $identifier;
-    public $arguments = [];
-    public $comment = null;
-    public function __construct($identifier, $arguments = []) {
+class Script_Command_Generic extends Script_Command {
+    private $comment = null;
+    private $identifier;
+    private $arguments;
+    private $commandBlock;
+    public function __construct($identifier, $arguments = [], $commandBlock = [], $comment = null) {
         $this->identifier = $identifier;
         $this->arguments = $arguments;
+        $this->commandBlock = $commandBlock;
+        $this->comment = $comment;
     }
     public function getComment() {
         return $this->comment;
@@ -22,11 +25,6 @@ class Script_Test extends Script_Command {
         return $this->arguments;
     }
     public function getCommandBlock() {
-        return null;
-    }
-    public function __toString() {
-        $result = parent::__toString();
-        if (substr($result, -3) == ";\r\n") $result = substr($result, 0, -3);
-        return $result;
+        return $this->commandBlock;
     }
 }

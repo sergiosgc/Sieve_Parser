@@ -1405,7 +1405,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     protected function reduce_rule_4($command = null)
     {
             if (!isset($comment)) $comment = new \sergiosgc\Text_Tokenizer_Token('<comment>', null);
-        $command->getValue()->comment = $comment->getValue();
+        $command->getValue()->setComment($comment->getValue());
         return new \sergiosgc\Text_Tokenizer_Token('<commented-command>', $command->getValue());
         return new \sergiosgc\Text_Tokenizer_Token('<commented-command>', $result);
     }
@@ -1495,7 +1495,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     protected function reduce_rule_3($comment = null,$command = null)
     {
             if (!isset($comment)) $comment = new \sergiosgc\Text_Tokenizer_Token('<comment>', null);
-        $command->getValue()->comment = $comment->getValue();
+        $command->getValue()->setComment($comment->getValue());
         return new \sergiosgc\Text_Tokenizer_Token('<commented-command>', $command->getValue());
         return new \sergiosgc\Text_Tokenizer_Token('<commented-command>', $result);
     }
@@ -1650,10 +1650,9 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     {
             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
-        $result = new \sergiosgc\Sieve_Parser\Script_Command(
+        $result = new \sergiosgc\Sieve_Parser\Script_Command_Generic(
             $id->getValue(),
-            $args->getValue()['arguments'],
-            $args->getValue()['tests'],
+            array_merge($args->getValue()['arguments'], $args->getValue()['tests']),
             $block->getValue());
         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
     }
@@ -1848,7 +1847,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     protected function reduce_rule_41($str = null)
     {
             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', []);
-        array_unshift($acc->getValue(), $str->getValue());
+        array_push($acc->getValue(), $str->getValue());
         return $acc;
         return new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', $result);
     }
@@ -1886,10 +1885,9 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     {
             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
-        $result = new \sergiosgc\Sieve_Parser\Script_Command(
+        $result = new \sergiosgc\Sieve_Parser\Script_Command_Generic(
             $id->getValue(),
-            $args->getValue()['arguments'],
-            $args->getValue()['tests'],
+            array_merge($args->getValue()['arguments'], $args->getValue()['tests']),
             $block->getValue());
         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
     }
@@ -1909,10 +1907,9 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     {
             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
-        $result = new \sergiosgc\Sieve_Parser\Script_Command(
+        $result = new \sergiosgc\Sieve_Parser\Script_Command_Generic(
             $id->getValue(),
-            $args->getValue()['arguments'],
-            $args->getValue()['tests'],
+            array_merge($args->getValue()['arguments'], $args->getValue()['tests']),
             $block->getValue());
         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
     }
@@ -2043,9 +2040,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_11($test = null,$block = null)
     {
-            $result = isset($else) ? $else->getValue() : [];
-        array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
-        $result = new \sergiosgc\Sieve_Parser\Script_Command_If($result);
+            $result = new \sergiosgc\Sieve_Parser\Script_Command_If('if', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
     }
     /* }}} */
@@ -2065,10 +2060,9 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     {
             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
-        $result = new \sergiosgc\Sieve_Parser\Script_Command(
+        $result = new \sergiosgc\Sieve_Parser\Script_Command_Generic(
             $id->getValue(),
-            $args->getValue()['arguments'],
-            $args->getValue()['tests'],
+            array_merge($args->getValue()['arguments'], $args->getValue()['tests']),
             $block->getValue());
         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
     }
@@ -2122,7 +2116,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
     protected function reduce_rule_42($acc = null,$str = null)
     {
             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', []);
-        array_unshift($acc->getValue(), $str->getValue());
+        array_push($acc->getValue(), $str->getValue());
         return $acc;
         return new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', $result);
     }
@@ -2141,9 +2135,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_12($test = null,$block = null,$else = null)
     {
-            $result = isset($else) ? $else->getValue() : [];
-        array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
-        $result = new \sergiosgc\Sieve_Parser\Script_Command_If($result);
+            $result = new \sergiosgc\Sieve_Parser\Script_Command_If('if', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
     }
     /* }}} */
@@ -2161,9 +2153,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_13($test = null,$block = null,$else = null)
     {
-            $result = isset($else) ? $else->getValue() : [];
-        array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
-        $result = new \sergiosgc\Sieve_Parser\Script_Command_If($result);
+            $result = new \sergiosgc\Sieve_Parser\Script_Command_If('if', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
     }
     /* }}} */
@@ -2198,7 +2188,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_17($block = null)
     {
-            $result = [[ 'test' => null, 'commands' => $block->getValue() ]];
+            $result = new \sergiosgc\Sieve_Parser\Script_Command_If('else', null, $block->getValue());
         return new \sergiosgc\Text_Tokenizer_Token('<command-else>', $result);
     }
     /* }}} */
@@ -2215,8 +2205,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_14($test = null,$block = null)
     {
-            $result = isset($else) ? $else->getValue() : [];
-        array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
+            $result = new \sergiosgc\Sieve_Parser\Script_Command_If('elsif', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
         return new \sergiosgc\Text_Tokenizer_Token('<command-elsif>', $result);
     }
     /* }}} */
@@ -2234,8 +2223,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_15($test = null,$block = null,$else = null)
     {
-            $result = isset($else) ? $else->getValue() : [];
-        array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
+            $result = new \sergiosgc\Sieve_Parser\Script_Command_If('elsif', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
         return new \sergiosgc\Text_Tokenizer_Token('<command-elsif>', $result);
     }
     /* }}} */
@@ -2253,8 +2241,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_16($test = null,$block = null,$else = null)
     {
-            $result = isset($else) ? $else->getValue() : [];
-        array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
+            $result = new \sergiosgc\Sieve_Parser\Script_Command_If('elsif', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
         return new \sergiosgc\Text_Tokenizer_Token('<command-elsif>', $result);
     }
     /* }}} */

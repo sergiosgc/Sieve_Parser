@@ -1,56 +1,60 @@
 <?php
 namespace sergiosgc\Sieve_Parser;
 
-class Script_Command {
-    public $identifier;
-    public $arguments = [];
-    public $tests = [];
-    public $subcommands = [];
-    public $comment = '';
-
-    public function __construct($identifier, $arguments = [], $tests = [], $subcommands = [], $comment = '') {
-        $this->identifier = $identifier;
-        $this->arguments = $arguments;
-        $this->tests = $tests;
-        $this->subcommands = $subcommands;
-        $this->comment = '';
-    }
+abstract class Script_Command {
+    public abstract function getIdentifier();
+    public abstract function getArguments();
+    public abstract function getCommandBlock();
+    public abstract function getComment();
     public function __toString() {
-        $result = $this->identifier;
-        if (count($this->arguments)) {
-            $result .= ' ' . implode(' ', array_map(array('\sergiosgc\Sieve_Parser\Script', 'encode'), $this->arguments));
+        $result = (string) $this->getComment();
+        $result .= $this->getIdentifier();
+        if ($this->getArguments() && count($this->getArguments())) {
+            if (1 < count($this->getArguments()) && "sergiosgc\Sieve_Parser\Script_Test" === array_reduce($this->getArguments(), function($acc, $e) {
+                if (is_null($acc)) return is_object($e) ? get_class($e) : gettype($e);
+                if ($acc === false) return false;
+                if ((is_object($e) ? get_class($e) : gettype($e)) === $acc) return $acc;
+                return false;
+            })) {
+                $result .= sprintf(' ( %s )', implode(', ' ,array_map(array('\sergiosgc\Sieve_Parser\Script', 'encode'), $this->getArguments())));
+            } else {
+                $result .= ' ' . implode(' ' ,array_map(array('\sergiosgc\Sieve_Parser\Script', 'encode'), $this->getArguments()));
+            }
         }
-        if (count($this->tests)) {
-            $result .= ' ' . Script::encode($this->tests);
+        if (!$this->getCommandBlock()) {
+            $result .= ";\r\n";
+        } elseif (is_object($this->getCommandBlock()) && $this->getCommandBlock() instanceof Script_Commands) {
+            $result .= sprintf(" {\r\n%s}\r\n", preg_replace('_^_m', ' ', (string) $this->getCommandBlock()));
+        } elseif (is_object($this->getCommandBlock()) && $this->getCommandBlock() instanceof Script_Command) {
+            $result .= ' ' . $this->getCommandBlock() . ";\r\n";
         }
-        if (count($this->subcommands) == 0) {
-            $result .= ';';
-        }
-        if (count($this->subcommands) == 1) {
-            $result .= ' ' . Script::encode($this->subcommands[0]) . ';';
-        }
-        if (count($this->subcommands) > 1) {
-            $result .= sprintf("{\r\n%s}", 
-                '  ' . implode('  ', array_map(function($command) { return (string) $command; }, $this->subcommands)));
-        }
-        $result .= "\r\n";
         return $result;
     }
-    public function isOptionalInTemplate() {
-        if (preg_match('/optional_[a-z]+_(.*)/', $this->identifier)) return true;
-        return false;
-    }
-    public function identifierMatchesTemplate($templateCommand) {
-        if ($this->identifier == $templateCommand->identifier) return true;
-        if (preg_match('/optional_[a-z]+_(.*)/', $templateCommand->identifier, $matches) && $matches[1] == $this->identifier) return true;
-        return false;
-    }
-    public function matchesTemplate($templateCommand) {
-        if (get_class($templateCommand) != get_class()) return false;
-        if (!Script::argumentMatchesTemplate($this->arguments, $templateCommand->arguments)) return false;
-        if (count($this->tests) != count($templateCommand->tests)) return false;
-        foreach ($this->tests as $i => $t) if (!$this->tests[$i]->matchesTemplate($templateCommand->tests[$i])) return false;
-        if (!Script::commandBlockMatchesTemplate($this->subcommands, $templateCommand->subcommands)) return false;
+    public function matchesTemplate($template) {
+        if ($this->getIdentifier() != $template->getIdentifier() && 
+            !(preg_match('/optional_[a-z]+_(.*)/', $template->getIdentifier(), $matches) && $matches[1] == $this->getIdentifier())) {
+            return false;
+        }
+        if (!Script::optionallyMatchesTemplate( $this->getArguments() ?: [], $template->getArguments() ?: [] )) return false;
+        if (!($this->getCommandBlock() ?: new Script_Commands([]))->matchesTemplate($template->getCommandBlock() ?: new Script_Commands([]))) return false;
         return true;
     }
+    public function isOptionalInTemplate() {
+        if (preg_match('/optional_[a-z]+_(.*)/', $this->getIdentifier())) return true;
+        return false;
+    }
+    /*
+    public function identifierMatchesTemplate(Script_Command $templateCommand) {
+        if (preg_match('/optional_[a-z]+_(.*)/', $templateCommand->getIdentifier(), $matches) && $matches[1] == $this->getIdentifier()) return true;
+        return false;
+    }
+    public function matchesTemplate(Script_Command $templateCommand) {
+        if (get_class($templateCommand) != get_class($this)) return false;
+        if (!Script::argumentMatchesTemplate($this->getArguments(), $templateCommand->getArguments())) return false;
+        if (!Script::commandBlockMatchesTemplate($this->getCommandBlock(), $templateCommand->getCommandBlock())) return false;
+        return true;
+    }
+     */
+
 }
+

@@ -24,11 +24,7 @@ $tokenizer = new \sergiosgc\Sieve_Parser\Tokenizer(
 
 $parser = new TestSieveParser($tokenizer);
 $parser->setDebugLevel(10);
-//try {
-    var_dump($parser->parse());
-//} catch (\sergiosgc\Text_Parser_UnexpectedTokenException $ex) {
-//    print($ex->getMessage());
-//}
+$parser->parse();
 ?>
 --EXPECT--
     1: /* vim: set expandtab tabstop=4 shiftwidth=4 foldmethod=marker: */
@@ -1662,7 +1658,7 @@ $parser->setDebugLevel(10);
  1629:     protected function reduce_rule_32($id = null)
  1630:     {
  1631:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', []);
- 1632:         $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), $args->getValue()['arguments']);
+ 1632:         $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), array_merge($args->getValue()['arguments'], $args->getValue()['tests']));
  1633:         return new \sergiosgc\Text_Tokenizer_Token('<test>', $result);
  1634:     }
  1635:     /* }}} */
@@ -1680,7 +1676,7 @@ $parser->setDebugLevel(10);
  1647:     {
  1648:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
  1649:         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
- 1650:         $result = new \sergiosgc\Sieve_Parser\Script_Command(
+ 1650:         $result = new \sergiosgc\Sieve_Parser\Script_Command_Generic(
  1651:             $id->getValue(),
  1652:             $args->getValue()['arguments'],
  1653:             $args->getValue()['tests'],
@@ -1700,590 +1696,586 @@ $parser->setDebugLevel(10);
  1667:      */
  1668:     protected function reduce_rule_24($args = null)
  1669:     {
- 1670:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
- 1671:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
- 1672:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
- 1673:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
- 1674:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
- 1675:     }
- 1676:     /* }}} */
- 1677:     /* reduce_rule_27 {{{ */
- 1678:     /**
- 1679:      * Reduction function for rule 27 
- 1680:      *
- 1681:      * Rule 27 is:
- 1682:      * <arguments>-><test>
- 1683:      *
- 1684:      * @param Text_Tokenizer_Token Token of type '<test>'
- 1685:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments>' token
- 1686:      */
- 1687:     protected function reduce_rule_27($test = null)
- 1688:     {
- 1689:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
- 1690:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
- 1691:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
- 1692:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
- 1693:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
- 1694:     }
- 1695:     /* }}} */
- 1696:     /* reduce_rule_28 {{{ */
- 1697:     /**
- 1698:      * Reduction function for rule 28 
- 1699:      *
- 1700:      * Rule 28 is:
- 1701:      * <arguments>-><test-list>
- 1702:      *
- 1703:      * @param Text_Tokenizer_Token Token of type '<test-list>'
- 1704:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments>' token
- 1705:      */
- 1706:     protected function reduce_rule_28($tests = null)
- 1707:     {
- 1708:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
- 1709:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
- 1710:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
- 1711:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
- 1712:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
- 1713:     }
- 1714:     /* }}} */
- 1715:     /* reduce_rule_30 {{{ */
- 1716:     /**
- 1717:      * Reduction function for rule 30 
- 1718:      *
- 1719:      * Rule 30 is:
- 1720:      * <arguments-plus>-><argument>
+ 1670:             if (isset($tests)) $debug = true;
+ 1671:         if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+ 1672:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
+ 1673:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
+ 1674:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
+ 1675:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
+ 1676:     }
+ 1677:     /* }}} */
+ 1678:     /* reduce_rule_27 {{{ */
+ 1679:     /**
+ 1680:      * Reduction function for rule 27 
+ 1681:      *
+ 1682:      * Rule 27 is:
+ 1683:      * <arguments>-><test>
+ 1684:      *
+ 1685:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 1686:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments>' token
+ 1687:      */
+ 1688:     protected function reduce_rule_27($test = null)
+ 1689:     {
+ 1690:             if (isset($tests)) $debug = true;
+ 1691:         if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+ 1692:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
+ 1693:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
+ 1694:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
+ 1695:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
+ 1696:     }
+ 1697:     /* }}} */
+ 1698:     /* reduce_rule_28 {{{ */
+ 1699:     /**
+ 1700:      * Reduction function for rule 28 
+ 1701:      *
+ 1702:      * Rule 28 is:
+ 1703:      * <arguments>-><test-list>
+ 1704:      *
+ 1705:      * @param Text_Tokenizer_Token Token of type '<test-list>'
+ 1706:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments>' token
+ 1707:      */
+ 1708:     protected function reduce_rule_28($tests = null)
+ 1709:     {
+ 1710:             if (isset($tests)) $debug = true;
+ 1711:         if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+ 1712:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
+ 1713:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
+ 1714:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
+ 1715:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
+ 1716:     }
+ 1717:     /* }}} */
+ 1718:     /* reduce_rule_30 {{{ */
+ 1719:     /**
+ 1720:      * Reduction function for rule 30 
  1721:      *
- 1722:      * @param Text_Tokenizer_Token Token of type '<argument>'
- 1723:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments-plus>' token
- 1724:      */
- 1725:     protected function reduce_rule_30($arg = null)
- 1726:     {
- 1727:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
- 1728:         array_push($acc->getValue(), $arg->getValue());
- 1729:         return $acc;
- 1730:         return new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', $result);
- 1731:     }
- 1732:     /* }}} */
- 1733:     /* reduce_rule_36 {{{ */
- 1734:     /**
- 1735:      * Reduction function for rule 36 
- 1736:      *
- 1737:      * Rule 36 is:
- 1738:      * <argument>-><string-list>
+ 1722:      * Rule 30 is:
+ 1723:      * <arguments-plus>-><argument>
+ 1724:      *
+ 1725:      * @param Text_Tokenizer_Token Token of type '<argument>'
+ 1726:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments-plus>' token
+ 1727:      */
+ 1728:     protected function reduce_rule_30($arg = null)
+ 1729:     {
+ 1730:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+ 1731:         array_push($acc->getValue(), $arg->getValue());
+ 1732:         return $acc;
+ 1733:         return new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', $result);
+ 1734:     }
+ 1735:     /* }}} */
+ 1736:     /* reduce_rule_36 {{{ */
+ 1737:     /**
+ 1738:      * Reduction function for rule 36 
  1739:      *
- 1740:      * @param Text_Tokenizer_Token Token of type '<string-list>'
- 1741:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<argument>' token
- 1742:      */
- 1743:     protected function reduce_rule_36($arg = null)
- 1744:     {
- 1745:             if (isset($tag)) return new \sergiosgc\Text_Tokenizer_Token('<argument>', new \sergiosgc\Sieve_Parser\Script_Tag($tag->getValue()));
- 1746:         $result = $arg->getValue();
- 1747:         return new \sergiosgc\Text_Tokenizer_Token('<argument>', $result);
- 1748:     }
- 1749:     /* }}} */
- 1750:     /* reduce_rule_37 {{{ */
- 1751:     /**
- 1752:      * Reduction function for rule 37 
- 1753:      *
- 1754:      * Rule 37 is:
- 1755:      * <argument>-><number>
+ 1740:      * Rule 36 is:
+ 1741:      * <argument>-><string-list>
+ 1742:      *
+ 1743:      * @param Text_Tokenizer_Token Token of type '<string-list>'
+ 1744:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<argument>' token
+ 1745:      */
+ 1746:     protected function reduce_rule_36($arg = null)
+ 1747:     {
+ 1748:             if (isset($tag)) return new \sergiosgc\Text_Tokenizer_Token('<argument>', new \sergiosgc\Sieve_Parser\Script_Tag($tag->getValue()));
+ 1749:         $result = $arg->getValue();
+ 1750:         return new \sergiosgc\Text_Tokenizer_Token('<argument>', $result);
+ 1751:     }
+ 1752:     /* }}} */
+ 1753:     /* reduce_rule_37 {{{ */
+ 1754:     /**
+ 1755:      * Reduction function for rule 37 
  1756:      *
- 1757:      * @param Text_Tokenizer_Token Token of type '<number>'
- 1758:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<argument>' token
- 1759:      */
- 1760:     protected function reduce_rule_37($arg = null)
- 1761:     {
- 1762:             if (isset($tag)) return new \sergiosgc\Text_Tokenizer_Token('<argument>', new \sergiosgc\Sieve_Parser\Script_Tag($tag->getValue()));
- 1763:         $result = $arg->getValue();
- 1764:         return new \sergiosgc\Text_Tokenizer_Token('<argument>', $result);
- 1765:     }
- 1766:     /* }}} */
- 1767:     /* reduce_rule_38 {{{ */
- 1768:     /**
- 1769:      * Reduction function for rule 38 
- 1770:      *
- 1771:      * Rule 38 is:
- 1772:      * <argument>-><tag>
+ 1757:      * Rule 37 is:
+ 1758:      * <argument>-><number>
+ 1759:      *
+ 1760:      * @param Text_Tokenizer_Token Token of type '<number>'
+ 1761:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<argument>' token
+ 1762:      */
+ 1763:     protected function reduce_rule_37($arg = null)
+ 1764:     {
+ 1765:             if (isset($tag)) return new \sergiosgc\Text_Tokenizer_Token('<argument>', new \sergiosgc\Sieve_Parser\Script_Tag($tag->getValue()));
+ 1766:         $result = $arg->getValue();
+ 1767:         return new \sergiosgc\Text_Tokenizer_Token('<argument>', $result);
+ 1768:     }
+ 1769:     /* }}} */
+ 1770:     /* reduce_rule_38 {{{ */
+ 1771:     /**
+ 1772:      * Reduction function for rule 38 
  1773:      *
- 1774:      * @param Text_Tokenizer_Token Token of type '<tag>'
- 1775:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<argument>' token
- 1776:      */
- 1777:     protected function reduce_rule_38($tag = null)
- 1778:     {
- 1779:             if (isset($tag)) return new \sergiosgc\Text_Tokenizer_Token('<argument>', new \sergiosgc\Sieve_Parser\Script_Tag($tag->getValue()));
- 1780:         $result = $arg->getValue();
- 1781:         return new \sergiosgc\Text_Tokenizer_Token('<argument>', $result);
- 1782:     }
- 1783:     /* }}} */
- 1784:     /* reduce_rule_6 {{{ */
- 1785:     /**
- 1786:      * Reduction function for rule 6 
- 1787:      *
- 1788:      * Rule 6 is:
- 1789:      * <command>-><identifier-fileinto><string><semicolon>
+ 1774:      * Rule 38 is:
+ 1775:      * <argument>-><tag>
+ 1776:      *
+ 1777:      * @param Text_Tokenizer_Token Token of type '<tag>'
+ 1778:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<argument>' token
+ 1779:      */
+ 1780:     protected function reduce_rule_38($tag = null)
+ 1781:     {
+ 1782:             if (isset($tag)) return new \sergiosgc\Text_Tokenizer_Token('<argument>', new \sergiosgc\Sieve_Parser\Script_Tag($tag->getValue()));
+ 1783:         $result = $arg->getValue();
+ 1784:         return new \sergiosgc\Text_Tokenizer_Token('<argument>', $result);
+ 1785:     }
+ 1786:     /* }}} */
+ 1787:     /* reduce_rule_6 {{{ */
+ 1788:     /**
+ 1789:      * Reduction function for rule 6 
  1790:      *
- 1791:      * @param Text_Tokenizer_Token Token of type '<string>'
- 1792:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
- 1793:      */
- 1794:     protected function reduce_rule_6($mailbox = null)
- 1795:     {
- 1796:             $result = new \sergiosgc\Sieve_Parser\Script_Command_Fileinto($mailbox->getValue());
- 1797:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
- 1798:     }
- 1799:     /* }}} */
- 1800:     /* reduce_rule_7 {{{ */
- 1801:     /**
- 1802:      * Reduction function for rule 7 
- 1803:      *
- 1804:      * Rule 7 is:
- 1805:      * <command>-><identifier-redirect><string><semicolon>
+ 1791:      * Rule 6 is:
+ 1792:      * <command>-><identifier-fileinto><string><semicolon>
+ 1793:      *
+ 1794:      * @param Text_Tokenizer_Token Token of type '<string>'
+ 1795:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
+ 1796:      */
+ 1797:     protected function reduce_rule_6($mailbox = null)
+ 1798:     {
+ 1799:             $result = new \sergiosgc\Sieve_Parser\Script_Command_Fileinto($mailbox->getValue());
+ 1800:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
+ 1801:     }
+ 1802:     /* }}} */
+ 1803:     /* reduce_rule_7 {{{ */
+ 1804:     /**
+ 1805:      * Reduction function for rule 7 
  1806:      *
- 1807:      * @param Text_Tokenizer_Token Token of type '<string>'
- 1808:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
- 1809:      */
- 1810:     protected function reduce_rule_7($address = null)
- 1811:     {
- 1812:             $result = new \sergiosgc\Sieve_Parser\Script_Command_Redirect($address->getValue());
- 1813:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
- 1814:     }
- 1815:     /* }}} */
- 1816:     /* reduce_rule_10 {{{ */
- 1817:     /**
- 1818:      * Reduction function for rule 10 
- 1819:      *
- 1820:      * Rule 10 is:
- 1821:      * <command>-><identifier-require><string-list><semicolon>
+ 1807:      * Rule 7 is:
+ 1808:      * <command>-><identifier-redirect><string><semicolon>
+ 1809:      *
+ 1810:      * @param Text_Tokenizer_Token Token of type '<string>'
+ 1811:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
+ 1812:      */
+ 1813:     protected function reduce_rule_7($address = null)
+ 1814:     {
+ 1815:             $result = new \sergiosgc\Sieve_Parser\Script_Command_Redirect($address->getValue());
+ 1816:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
+ 1817:     }
+ 1818:     /* }}} */
+ 1819:     /* reduce_rule_10 {{{ */
+ 1820:     /**
+ 1821:      * Reduction function for rule 10 
  1822:      *
- 1823:      * @param Text_Tokenizer_Token Token of type '<string-list>'
- 1824:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
- 1825:      */
- 1826:     protected function reduce_rule_10($capabilities = null)
- 1827:     {
- 1828:             $result = new \sergiosgc\Sieve_Parser\Script_Command_Require($capabilities->getValue());
- 1829:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
- 1830:     }
- 1831:     /* }}} */
- 1832:     /* reduce_rule_41 {{{ */
- 1833:     /**
- 1834:      * Reduction function for rule 41 
- 1835:      *
- 1836:      * Rule 41 is:
- 1837:      * <string-plus-csv>-><string>
+ 1823:      * Rule 10 is:
+ 1824:      * <command>-><identifier-require><string-list><semicolon>
+ 1825:      *
+ 1826:      * @param Text_Tokenizer_Token Token of type '<string-list>'
+ 1827:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
+ 1828:      */
+ 1829:     protected function reduce_rule_10($capabilities = null)
+ 1830:     {
+ 1831:             $result = new \sergiosgc\Sieve_Parser\Script_Command_Require($capabilities->getValue());
+ 1832:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
+ 1833:     }
+ 1834:     /* }}} */
+ 1835:     /* reduce_rule_41 {{{ */
+ 1836:     /**
+ 1837:      * Reduction function for rule 41 
  1838:      *
- 1839:      * @param Text_Tokenizer_Token Token of type '<string>'
- 1840:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<string-plus-csv>' token
- 1841:      */
- 1842:     protected function reduce_rule_41($str = null)
- 1843:     {
- 1844:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', []);
- 1845:         array_unshift($acc->getValue(), $str->getValue());
- 1846:         return $acc;
- 1847:         return new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', $result);
- 1848:     }
- 1849:     /* }}} */
- 1850:     /* reduce_rule_31 {{{ */
- 1851:     /**
- 1852:      * Reduction function for rule 31 
- 1853:      *
- 1854:      * Rule 31 is:
- 1855:      * <test>-><identifier><arguments>
+ 1839:      * Rule 41 is:
+ 1840:      * <string-plus-csv>-><string>
+ 1841:      *
+ 1842:      * @param Text_Tokenizer_Token Token of type '<string>'
+ 1843:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<string-plus-csv>' token
+ 1844:      */
+ 1845:     protected function reduce_rule_41($str = null)
+ 1846:     {
+ 1847:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', []);
+ 1848:         array_unshift($acc->getValue(), $str->getValue());
+ 1849:         return $acc;
+ 1850:         return new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', $result);
+ 1851:     }
+ 1852:     /* }}} */
+ 1853:     /* reduce_rule_31 {{{ */
+ 1854:     /**
+ 1855:      * Reduction function for rule 31 
  1856:      *
- 1857:      * @param Text_Tokenizer_Token Token of type '<identifier>'
- 1858:      * @param Text_Tokenizer_Token Token of type '<arguments>'
- 1859:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<test>' token
- 1860:      */
- 1861:     protected function reduce_rule_31($id = null,$args = null)
- 1862:     {
- 1863:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', []);
- 1864:         $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), $args->getValue()['arguments']);
- 1865:         return new \sergiosgc\Text_Tokenizer_Token('<test>', $result);
- 1866:     }
- 1867:     /* }}} */
- 1868:     /* reduce_rule_18 {{{ */
- 1869:     /**
- 1870:      * Reduction function for rule 18 
- 1871:      *
- 1872:      * Rule 18 is:
- 1873:      * <command>-><identifier><arguments><semicolon>
+ 1857:      * Rule 31 is:
+ 1858:      * <test>-><identifier><arguments>
+ 1859:      *
+ 1860:      * @param Text_Tokenizer_Token Token of type '<identifier>'
+ 1861:      * @param Text_Tokenizer_Token Token of type '<arguments>'
+ 1862:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<test>' token
+ 1863:      */
+ 1864:     protected function reduce_rule_31($id = null,$args = null)
+ 1865:     {
+ 1866:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', []);
+ 1867:         $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), array_merge($args->getValue()['arguments'], $args->getValue()['tests']));
+ 1868:         return new \sergiosgc\Text_Tokenizer_Token('<test>', $result);
+ 1869:     }
+ 1870:     /* }}} */
+ 1871:     /* reduce_rule_18 {{{ */
+ 1872:     /**
+ 1873:      * Reduction function for rule 18 
  1874:      *
- 1875:      * @param Text_Tokenizer_Token Token of type '<identifier>'
- 1876:      * @param Text_Tokenizer_Token Token of type '<arguments>'
- 1877:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
- 1878:      */
- 1879:     protected function reduce_rule_18($id = null,$args = null)
- 1880:     {
- 1881:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
- 1882:         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
- 1883:         $result = new \sergiosgc\Sieve_Parser\Script_Command(
- 1884:             $id->getValue(),
- 1885:             $args->getValue()['arguments'],
- 1886:             $args->getValue()['tests'],
- 1887:             $block->getValue());
- 1888:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
- 1889:     }
- 1890:     /* }}} */
- 1891:     /* reduce_rule_21 {{{ */
- 1892:     /**
- 1893:      * Reduction function for rule 21 
- 1894:      *
- 1895:      * Rule 21 is:
- 1896:      * <command>-><identifier><bracket-open><block>
+ 1875:      * Rule 18 is:
+ 1876:      * <command>-><identifier><arguments><semicolon>
+ 1877:      *
+ 1878:      * @param Text_Tokenizer_Token Token of type '<identifier>'
+ 1879:      * @param Text_Tokenizer_Token Token of type '<arguments>'
+ 1880:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
+ 1881:      */
+ 1882:     protected function reduce_rule_18($id = null,$args = null)
+ 1883:     {
+ 1884:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
+ 1885:         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
+ 1886:         $result = new \sergiosgc\Sieve_Parser\Script_Command_Generic(
+ 1887:             $id->getValue(),
+ 1888:             $args->getValue()['arguments'],
+ 1889:             $args->getValue()['tests'],
+ 1890:             $block->getValue());
+ 1891:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
+ 1892:     }
+ 1893:     /* }}} */
+ 1894:     /* reduce_rule_21 {{{ */
+ 1895:     /**
+ 1896:      * Reduction function for rule 21 
  1897:      *
- 1898:      * @param Text_Tokenizer_Token Token of type '<identifier>'
- 1899:      * @param Text_Tokenizer_Token Token of type '<block>'
- 1900:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
- 1901:      */
- 1902:     protected function reduce_rule_21($id = null,$block = null)
- 1903:     {
- 1904:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
- 1905:         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
- 1906:         $result = new \sergiosgc\Sieve_Parser\Script_Command(
- 1907:             $id->getValue(),
- 1908:             $args->getValue()['arguments'],
- 1909:             $args->getValue()['tests'],
- 1910:             $block->getValue());
- 1911:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
- 1912:     }
- 1913:     /* }}} */
- 1914:     /* reduce_rule_23 {{{ */
- 1915:     /**
- 1916:      * Reduction function for rule 23 
- 1917:      *
- 1918:      * Rule 23 is:
- 1919:      * <block>-><bracket-close>
+ 1898:      * Rule 21 is:
+ 1899:      * <command>-><identifier><bracket-open><block>
+ 1900:      *
+ 1901:      * @param Text_Tokenizer_Token Token of type '<identifier>'
+ 1902:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 1903:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
+ 1904:      */
+ 1905:     protected function reduce_rule_21($id = null,$block = null)
+ 1906:     {
+ 1907:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
+ 1908:         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
+ 1909:         $result = new \sergiosgc\Sieve_Parser\Script_Command_Generic(
+ 1910:             $id->getValue(),
+ 1911:             $args->getValue()['arguments'],
+ 1912:             $args->getValue()['tests'],
+ 1913:             $block->getValue());
+ 1914:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
+ 1915:     }
+ 1916:     /* }}} */
+ 1917:     /* reduce_rule_23 {{{ */
+ 1918:     /**
+ 1919:      * Reduction function for rule 23 
  1920:      *
- 1921:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<block>' token
- 1922:      */
- 1923:     protected function reduce_rule_23()
- 1924:     {
- 1925:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
- 1926:         if (isset($command)) array_unshift($acc->getValue(), $command->getValue());
- 1927:         return $acc;
- 1928:         return new \sergiosgc\Text_Tokenizer_Token('<block>', $result);
- 1929:     }
- 1930:     /* }}} */
- 1931:     /* reduce_rule_25 {{{ */
- 1932:     /**
- 1933:      * Reduction function for rule 25 
- 1934:      *
- 1935:      * Rule 25 is:
- 1936:      * <arguments>-><arguments-plus><test>
+ 1921:      * Rule 23 is:
+ 1922:      * <block>-><bracket-close>
+ 1923:      *
+ 1924:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<block>' token
+ 1925:      */
+ 1926:     protected function reduce_rule_23()
+ 1927:     {
+ 1928:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
+ 1929:         if (isset($command)) array_unshift($acc->getValue(), $command->getValue());
+ 1930:         return $acc;
+ 1931:         return new \sergiosgc\Text_Tokenizer_Token('<block>', $result);
+ 1932:     }
+ 1933:     /* }}} */
+ 1934:     /* reduce_rule_25 {{{ */
+ 1935:     /**
+ 1936:      * Reduction function for rule 25 
  1937:      *
- 1938:      * @param Text_Tokenizer_Token Token of type '<arguments-plus>'
- 1939:      * @param Text_Tokenizer_Token Token of type '<test>'
- 1940:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments>' token
- 1941:      */
- 1942:     protected function reduce_rule_25($args = null,$test = null)
- 1943:     {
- 1944:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
- 1945:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
- 1946:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
- 1947:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
- 1948:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
- 1949:     }
- 1950:     /* }}} */
- 1951:     /* reduce_rule_26 {{{ */
- 1952:     /**
- 1953:      * Reduction function for rule 26 
- 1954:      *
- 1955:      * Rule 26 is:
- 1956:      * <arguments>-><arguments-plus><test-list>
- 1957:      *
- 1958:      * @param Text_Tokenizer_Token Token of type '<arguments-plus>'
- 1959:      * @param Text_Tokenizer_Token Token of type '<test-list>'
- 1960:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments>' token
- 1961:      */
- 1962:     protected function reduce_rule_26($args = null,$tests = null)
- 1963:     {
- 1964:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
- 1965:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
- 1966:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
- 1967:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
- 1968:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
- 1969:     }
- 1970:     /* }}} */
- 1971:     /* reduce_rule_29 {{{ */
- 1972:     /**
- 1973:      * Reduction function for rule 29 
- 1974:      *
- 1975:      * Rule 29 is:
- 1976:      * <arguments-plus>-><arguments-plus><argument>
- 1977:      *
- 1978:      * @param Text_Tokenizer_Token Token of type '<arguments-plus>'
- 1979:      * @param Text_Tokenizer_Token Token of type '<argument>'
- 1980:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments-plus>' token
- 1981:      */
- 1982:     protected function reduce_rule_29($acc = null,$arg = null)
- 1983:     {
- 1984:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
- 1985:         array_push($acc->getValue(), $arg->getValue());
- 1986:         return $acc;
- 1987:         return new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', $result);
- 1988:     }
- 1989:     /* }}} */
- 1990:     /* reduce_rule_34 {{{ */
- 1991:     /**
- 1992:      * Reduction function for rule 34 
- 1993:      *
- 1994:      * Rule 34 is:
- 1995:      * <test-plus-csv>-><test>
- 1996:      *
- 1997:      * @param Text_Tokenizer_Token Token of type '<test>'
- 1998:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<test-plus-csv>' token
- 1999:      */
- 2000:     protected function reduce_rule_34($test = null)
- 2001:     {
- 2002:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<test-plus-csv>', []);
- 2003:         array_unshift($acc->getValue(), $test->getValue());
- 2004:         return $acc;
- 2005:         return new \sergiosgc\Text_Tokenizer_Token('<test-plus-csv>', $result);
- 2006:     }
- 2007:     /* }}} */
- 2008:     /* reduce_rule_39 {{{ */
- 2009:     /**
- 2010:      * Reduction function for rule 39 
- 2011:      *
- 2012:      * Rule 39 is:
- 2013:      * <string-list>-><square-parenthesis-open><string-plus-csv><square-parenthesis-close>
- 2014:      *
- 2015:      * @param Text_Tokenizer_Token Token of type '<string-plus-csv>'
- 2016:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<string-list>' token
- 2017:      */
- 2018:     protected function reduce_rule_39($strArr = null)
- 2019:     {
- 2020:             if (isset($str)) return new \sergiosgc\Text_Tokenizer_Token('<string-list>', $str->getValue());
- 2021:         return new \sergiosgc\Text_Tokenizer_Token('<string-list>', $strArr->getValue());
- 2022:         return new \sergiosgc\Text_Tokenizer_Token('<string-list>', $result);
- 2023:     }
- 2024:     /* }}} */
- 2025:     /* reduce_rule_11 {{{ */
- 2026:     /**
- 2027:      * Reduction function for rule 11 
- 2028:      *
- 2029:      * Rule 11 is:
- 2030:      * <command>-><identifier-if><test><bracket-open><block>
- 2031:      *
- 2032:      * @param Text_Tokenizer_Token Token of type '<test>'
- 2033:      * @param Text_Tokenizer_Token Token of type '<block>'
- 2034:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
- 2035:      */
- 2036:     protected function reduce_rule_11($test = null,$block = null)
- 2037:     {
- 2038:             $result = isset($else) ? $else->getValue() : [];
- 2039:         array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
- 2040:         $result = new \sergiosgc\Sieve_Parser\Script_Command_If($result);
- 2041:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
- 2042:     }
- 2043:     /* }}} */
- 2044:     /* reduce_rule_19 {{{ */
- 2045:     /**
- 2046:      * Reduction function for rule 19 
- 2047:      *
- 2048:      * Rule 19 is:
- 2049:      * <command>-><identifier><arguments><bracket-open><block>
+ 1938:      * Rule 25 is:
+ 1939:      * <arguments>-><arguments-plus><test>
+ 1940:      *
+ 1941:      * @param Text_Tokenizer_Token Token of type '<arguments-plus>'
+ 1942:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 1943:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments>' token
+ 1944:      */
+ 1945:     protected function reduce_rule_25($args = null,$test = null)
+ 1946:     {
+ 1947:             if (isset($tests)) $debug = true;
+ 1948:         if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+ 1949:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
+ 1950:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
+ 1951:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
+ 1952:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
+ 1953:     }
+ 1954:     /* }}} */
+ 1955:     /* reduce_rule_26 {{{ */
+ 1956:     /**
+ 1957:      * Reduction function for rule 26 
+ 1958:      *
+ 1959:      * Rule 26 is:
+ 1960:      * <arguments>-><arguments-plus><test-list>
+ 1961:      *
+ 1962:      * @param Text_Tokenizer_Token Token of type '<arguments-plus>'
+ 1963:      * @param Text_Tokenizer_Token Token of type '<test-list>'
+ 1964:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments>' token
+ 1965:      */
+ 1966:     protected function reduce_rule_26($args = null,$tests = null)
+ 1967:     {
+ 1968:             if (isset($tests)) $debug = true;
+ 1969:         if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+ 1970:         if (!isset($tests)) $tests = new \sergiosgc\Text_Tokenizer_Token('<test-list>', []);
+ 1971:         if (isset($test)) array_unshift($tests->getValue(), $test->getValue());
+ 1972:         $result = [ 'arguments' => $args->getValue(), 'tests' => $tests->getValue() ];
+ 1973:         return new \sergiosgc\Text_Tokenizer_Token('<arguments>', $result);
+ 1974:     }
+ 1975:     /* }}} */
+ 1976:     /* reduce_rule_29 {{{ */
+ 1977:     /**
+ 1978:      * Reduction function for rule 29 
+ 1979:      *
+ 1980:      * Rule 29 is:
+ 1981:      * <arguments-plus>-><arguments-plus><argument>
+ 1982:      *
+ 1983:      * @param Text_Tokenizer_Token Token of type '<arguments-plus>'
+ 1984:      * @param Text_Tokenizer_Token Token of type '<argument>'
+ 1985:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<arguments-plus>' token
+ 1986:      */
+ 1987:     protected function reduce_rule_29($acc = null,$arg = null)
+ 1988:     {
+ 1989:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', []);
+ 1990:         array_push($acc->getValue(), $arg->getValue());
+ 1991:         return $acc;
+ 1992:         return new \sergiosgc\Text_Tokenizer_Token('<arguments-plus>', $result);
+ 1993:     }
+ 1994:     /* }}} */
+ 1995:     /* reduce_rule_34 {{{ */
+ 1996:     /**
+ 1997:      * Reduction function for rule 34 
+ 1998:      *
+ 1999:      * Rule 34 is:
+ 2000:      * <test-plus-csv>-><test>
+ 2001:      *
+ 2002:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 2003:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<test-plus-csv>' token
+ 2004:      */
+ 2005:     protected function reduce_rule_34($test = null)
+ 2006:     {
+ 2007:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<test-plus-csv>', []);
+ 2008:         array_unshift($acc->getValue(), $test->getValue());
+ 2009:         return $acc;
+ 2010:         return new \sergiosgc\Text_Tokenizer_Token('<test-plus-csv>', $result);
+ 2011:     }
+ 2012:     /* }}} */
+ 2013:     /* reduce_rule_39 {{{ */
+ 2014:     /**
+ 2015:      * Reduction function for rule 39 
+ 2016:      *
+ 2017:      * Rule 39 is:
+ 2018:      * <string-list>-><square-parenthesis-open><string-plus-csv><square-parenthesis-close>
+ 2019:      *
+ 2020:      * @param Text_Tokenizer_Token Token of type '<string-plus-csv>'
+ 2021:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<string-list>' token
+ 2022:      */
+ 2023:     protected function reduce_rule_39($strArr = null)
+ 2024:     {
+ 2025:             if (isset($str)) return new \sergiosgc\Text_Tokenizer_Token('<string-list>', $str->getValue());
+ 2026:         return new \sergiosgc\Text_Tokenizer_Token('<string-list>', $strArr->getValue());
+ 2027:         return new \sergiosgc\Text_Tokenizer_Token('<string-list>', $result);
+ 2028:     }
+ 2029:     /* }}} */
+ 2030:     /* reduce_rule_11 {{{ */
+ 2031:     /**
+ 2032:      * Reduction function for rule 11 
+ 2033:      *
+ 2034:      * Rule 11 is:
+ 2035:      * <command>-><identifier-if><test><bracket-open><block>
+ 2036:      *
+ 2037:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 2038:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 2039:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
+ 2040:      */
+ 2041:     protected function reduce_rule_11($test = null,$block = null)
+ 2042:     {
+ 2043:             $result = new \sergiosgc\Sieve_Parser\Script_Command_If('if', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
+ 2044:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
+ 2045:     }
+ 2046:     /* }}} */
+ 2047:     /* reduce_rule_19 {{{ */
+ 2048:     /**
+ 2049:      * Reduction function for rule 19 
  2050:      *
- 2051:      * @param Text_Tokenizer_Token Token of type '<identifier>'
- 2052:      * @param Text_Tokenizer_Token Token of type '<arguments>'
- 2053:      * @param Text_Tokenizer_Token Token of type '<block>'
- 2054:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
- 2055:      */
- 2056:     protected function reduce_rule_19($id = null,$args = null,$block = null)
- 2057:     {
- 2058:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
- 2059:         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
- 2060:         $result = new \sergiosgc\Sieve_Parser\Script_Command(
- 2061:             $id->getValue(),
- 2062:             $args->getValue()['arguments'],
- 2063:             $args->getValue()['tests'],
- 2064:             $block->getValue());
- 2065:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
- 2066:     }
- 2067:     /* }}} */
- 2068:     /* reduce_rule_22 {{{ */
- 2069:     /**
- 2070:      * Reduction function for rule 22 
- 2071:      *
- 2072:      * Rule 22 is:
- 2073:      * <block>-><command><block>
+ 2051:      * Rule 19 is:
+ 2052:      * <command>-><identifier><arguments><bracket-open><block>
+ 2053:      *
+ 2054:      * @param Text_Tokenizer_Token Token of type '<identifier>'
+ 2055:      * @param Text_Tokenizer_Token Token of type '<arguments>'
+ 2056:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 2057:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
+ 2058:      */
+ 2059:     protected function reduce_rule_19($id = null,$args = null,$block = null)
+ 2060:     {
+ 2061:             if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', [ 'arguments' => [], 'tests' => [] ]);
+ 2062:         if (!isset($block)) $block = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
+ 2063:         $result = new \sergiosgc\Sieve_Parser\Script_Command_Generic(
+ 2064:             $id->getValue(),
+ 2065:             $args->getValue()['arguments'],
+ 2066:             $args->getValue()['tests'],
+ 2067:             $block->getValue());
+ 2068:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
+ 2069:     }
+ 2070:     /* }}} */
+ 2071:     /* reduce_rule_22 {{{ */
+ 2072:     /**
+ 2073:      * Reduction function for rule 22 
  2074:      *
- 2075:      * @param Text_Tokenizer_Token Token of type '<command>'
- 2076:      * @param Text_Tokenizer_Token Token of type '<block>'
- 2077:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<block>' token
- 2078:      */
- 2079:     protected function reduce_rule_22($command = null,$acc = null)
- 2080:     {
- 2081:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
- 2082:         if (isset($command)) array_unshift($acc->getValue(), $command->getValue());
- 2083:         return $acc;
- 2084:         return new \sergiosgc\Text_Tokenizer_Token('<block>', $result);
- 2085:     }
- 2086:     /* }}} */
- 2087:     /* reduce_rule_33 {{{ */
- 2088:     /**
- 2089:      * Reduction function for rule 33 
- 2090:      *
- 2091:      * Rule 33 is:
- 2092:      * <test-list>-><parenthesis-open><test-plus-csv><parenthesis-close>
+ 2075:      * Rule 22 is:
+ 2076:      * <block>-><command><block>
+ 2077:      *
+ 2078:      * @param Text_Tokenizer_Token Token of type '<command>'
+ 2079:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 2080:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<block>' token
+ 2081:      */
+ 2082:     protected function reduce_rule_22($command = null,$acc = null)
+ 2083:     {
+ 2084:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<block>', []);
+ 2085:         if (isset($command)) array_unshift($acc->getValue(), $command->getValue());
+ 2086:         return $acc;
+ 2087:         return new \sergiosgc\Text_Tokenizer_Token('<block>', $result);
+ 2088:     }
+ 2089:     /* }}} */
+ 2090:     /* reduce_rule_33 {{{ */
+ 2091:     /**
+ 2092:      * Reduction function for rule 33 
  2093:      *
- 2094:      * @param Text_Tokenizer_Token Token of type '<test-plus-csv>'
- 2095:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<test-list>' token
- 2096:      */
- 2097:     protected function reduce_rule_33($tests = null)
- 2098:     {
- 2099:             $result = $tests->getValue();
- 2100:         return new \sergiosgc\Text_Tokenizer_Token('<test-list>', $result);
- 2101:     }
- 2102:     /* }}} */
- 2103:     /* reduce_rule_42 {{{ */
- 2104:     /**
- 2105:      * Reduction function for rule 42 
- 2106:      *
- 2107:      * Rule 42 is:
- 2108:      * <string-plus-csv>-><string-plus-csv><comma><string>
+ 2094:      * Rule 33 is:
+ 2095:      * <test-list>-><parenthesis-open><test-plus-csv><parenthesis-close>
+ 2096:      *
+ 2097:      * @param Text_Tokenizer_Token Token of type '<test-plus-csv>'
+ 2098:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<test-list>' token
+ 2099:      */
+ 2100:     protected function reduce_rule_33($tests = null)
+ 2101:     {
+ 2102:             $result = $tests->getValue();
+ 2103:         return new \sergiosgc\Text_Tokenizer_Token('<test-list>', $result);
+ 2104:     }
+ 2105:     /* }}} */
+ 2106:     /* reduce_rule_42 {{{ */
+ 2107:     /**
+ 2108:      * Reduction function for rule 42 
  2109:      *
- 2110:      * @param Text_Tokenizer_Token Token of type '<string-plus-csv>'
- 2111:      * @param Text_Tokenizer_Token Token of type '<string>'
- 2112:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<string-plus-csv>' token
- 2113:      */
- 2114:     protected function reduce_rule_42($acc = null,$str = null)
- 2115:     {
- 2116:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', []);
- 2117:         array_unshift($acc->getValue(), $str->getValue());
- 2118:         return $acc;
- 2119:         return new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', $result);
- 2120:     }
- 2121:     /* }}} */
- 2122:     /* reduce_rule_12 {{{ */
- 2123:     /**
- 2124:      * Reduction function for rule 12 
- 2125:      *
- 2126:      * Rule 12 is:
- 2127:      * <command>-><identifier-if><test><bracket-open><block><command-elsif>
+ 2110:      * Rule 42 is:
+ 2111:      * <string-plus-csv>-><string-plus-csv><comma><string>
+ 2112:      *
+ 2113:      * @param Text_Tokenizer_Token Token of type '<string-plus-csv>'
+ 2114:      * @param Text_Tokenizer_Token Token of type '<string>'
+ 2115:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<string-plus-csv>' token
+ 2116:      */
+ 2117:     protected function reduce_rule_42($acc = null,$str = null)
+ 2118:     {
+ 2119:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', []);
+ 2120:         array_unshift($acc->getValue(), $str->getValue());
+ 2121:         return $acc;
+ 2122:         return new \sergiosgc\Text_Tokenizer_Token('<string-plus-csv>', $result);
+ 2123:     }
+ 2124:     /* }}} */
+ 2125:     /* reduce_rule_12 {{{ */
+ 2126:     /**
+ 2127:      * Reduction function for rule 12 
  2128:      *
- 2129:      * @param Text_Tokenizer_Token Token of type '<test>'
- 2130:      * @param Text_Tokenizer_Token Token of type '<block>'
- 2131:      * @param Text_Tokenizer_Token Token of type '<command-elsif>'
- 2132:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
- 2133:      */
- 2134:     protected function reduce_rule_12($test = null,$block = null,$else = null)
- 2135:     {
- 2136:             $result = isset($else) ? $else->getValue() : [];
- 2137:         array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
- 2138:         $result = new \sergiosgc\Sieve_Parser\Script_Command_If($result);
- 2139:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
- 2140:     }
- 2141:     /* }}} */
- 2142:     /* reduce_rule_13 {{{ */
- 2143:     /**
- 2144:      * Reduction function for rule 13 
- 2145:      *
- 2146:      * Rule 13 is:
- 2147:      * <command>-><identifier-if><test><bracket-open><block><command-else>
- 2148:      *
- 2149:      * @param Text_Tokenizer_Token Token of type '<test>'
- 2150:      * @param Text_Tokenizer_Token Token of type '<block>'
- 2151:      * @param Text_Tokenizer_Token Token of type '<command-else>'
- 2152:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
- 2153:      */
- 2154:     protected function reduce_rule_13($test = null,$block = null,$else = null)
- 2155:     {
- 2156:             $result = isset($else) ? $else->getValue() : [];
- 2157:         array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
- 2158:         $result = new \sergiosgc\Sieve_Parser\Script_Command_If($result);
- 2159:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
- 2160:     }
- 2161:     /* }}} */
- 2162:     /* reduce_rule_35 {{{ */
- 2163:     /**
- 2164:      * Reduction function for rule 35 
- 2165:      *
- 2166:      * Rule 35 is:
- 2167:      * <test-plus-csv>-><test><comma><test-plus-csv>
- 2168:      *
- 2169:      * @param Text_Tokenizer_Token Token of type '<test>'
- 2170:      * @param Text_Tokenizer_Token Token of type '<test-plus-csv>'
- 2171:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<test-plus-csv>' token
- 2172:      */
- 2173:     protected function reduce_rule_35($test = null,$acc = null)
- 2174:     {
- 2175:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<test-plus-csv>', []);
- 2176:         array_unshift($acc->getValue(), $test->getValue());
- 2177:         return $acc;
- 2178:         return new \sergiosgc\Text_Tokenizer_Token('<test-plus-csv>', $result);
- 2179:     }
- 2180:     /* }}} */
- 2181:     /* reduce_rule_17 {{{ */
- 2182:     /**
- 2183:      * Reduction function for rule 17 
- 2184:      *
- 2185:      * Rule 17 is:
- 2186:      * <command-else>-><identifier-else><bracket-open><block>
- 2187:      *
- 2188:      * @param Text_Tokenizer_Token Token of type '<block>'
- 2189:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command-else>' token
- 2190:      */
- 2191:     protected function reduce_rule_17($block = null)
- 2192:     {
- 2193:             $result = [[ 'test' => null, 'commands' => $block->getValue() ]];
- 2194:         return new \sergiosgc\Text_Tokenizer_Token('<command-else>', $result);
- 2195:     }
- 2196:     /* }}} */
- 2197:     /* reduce_rule_14 {{{ */
- 2198:     /**
- 2199:      * Reduction function for rule 14 
- 2200:      *
- 2201:      * Rule 14 is:
- 2202:      * <command-elsif>-><identifier-elsif><test><bracket-open><block>
- 2203:      *
- 2204:      * @param Text_Tokenizer_Token Token of type '<test>'
- 2205:      * @param Text_Tokenizer_Token Token of type '<block>'
- 2206:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command-elsif>' token
- 2207:      */
- 2208:     protected function reduce_rule_14($test = null,$block = null)
- 2209:     {
- 2210:             $result = isset($else) ? $else->getValue() : [];
- 2211:         array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
- 2212:         return new \sergiosgc\Text_Tokenizer_Token('<command-elsif>', $result);
- 2213:     }
- 2214:     /* }}} */
- 2215:     /* reduce_rule_15 {{{ */
- 2216:     /**
- 2217:      * Reduction function for rule 15 
- 2218:      *
- 2219:      * Rule 15 is:
- 2220:      * <command-elsif>-><identifier-elsif><test><bracket-open><block><command-elsif>
- 2221:      *
- 2222:      * @param Text_Tokenizer_Token Token of type '<test>'
- 2223:      * @param Text_Tokenizer_Token Token of type '<block>'
- 2224:      * @param Text_Tokenizer_Token Token of type '<command-elsif>'
- 2225:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command-elsif>' token
- 2226:      */
- 2227:     protected function reduce_rule_15($test = null,$block = null,$else = null)
- 2228:     {
- 2229:             $result = isset($else) ? $else->getValue() : [];
- 2230:         array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
- 2231:         return new \sergiosgc\Text_Tokenizer_Token('<command-elsif>', $result);
- 2232:     }
- 2233:     /* }}} */
- 2234:     /* reduce_rule_16 {{{ */
- 2235:     /**
- 2236:      * Reduction function for rule 16 
+ 2129:      * Rule 12 is:
+ 2130:      * <command>-><identifier-if><test><bracket-open><block><command-elsif>
+ 2131:      *
+ 2132:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 2133:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 2134:      * @param Text_Tokenizer_Token Token of type '<command-elsif>'
+ 2135:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
+ 2136:      */
+ 2137:     protected function reduce_rule_12($test = null,$block = null,$else = null)
+ 2138:     {
+ 2139:             $result = new \sergiosgc\Sieve_Parser\Script_Command_If('if', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
+ 2140:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
+ 2141:     }
+ 2142:     /* }}} */
+ 2143:     /* reduce_rule_13 {{{ */
+ 2144:     /**
+ 2145:      * Reduction function for rule 13 
+ 2146:      *
+ 2147:      * Rule 13 is:
+ 2148:      * <command>-><identifier-if><test><bracket-open><block><command-else>
+ 2149:      *
+ 2150:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 2151:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 2152:      * @param Text_Tokenizer_Token Token of type '<command-else>'
+ 2153:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command>' token
+ 2154:      */
+ 2155:     protected function reduce_rule_13($test = null,$block = null,$else = null)
+ 2156:     {
+ 2157:             $result = new \sergiosgc\Sieve_Parser\Script_Command_If('if', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
+ 2158:         return new \sergiosgc\Text_Tokenizer_Token('<command>', $result);
+ 2159:     }
+ 2160:     /* }}} */
+ 2161:     /* reduce_rule_35 {{{ */
+ 2162:     /**
+ 2163:      * Reduction function for rule 35 
+ 2164:      *
+ 2165:      * Rule 35 is:
+ 2166:      * <test-plus-csv>-><test><comma><test-plus-csv>
+ 2167:      *
+ 2168:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 2169:      * @param Text_Tokenizer_Token Token of type '<test-plus-csv>'
+ 2170:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<test-plus-csv>' token
+ 2171:      */
+ 2172:     protected function reduce_rule_35($test = null,$acc = null)
+ 2173:     {
+ 2174:             if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<test-plus-csv>', []);
+ 2175:         array_unshift($acc->getValue(), $test->getValue());
+ 2176:         return $acc;
+ 2177:         return new \sergiosgc\Text_Tokenizer_Token('<test-plus-csv>', $result);
+ 2178:     }
+ 2179:     /* }}} */
+ 2180:     /* reduce_rule_17 {{{ */
+ 2181:     /**
+ 2182:      * Reduction function for rule 17 
+ 2183:      *
+ 2184:      * Rule 17 is:
+ 2185:      * <command-else>-><identifier-else><bracket-open><block>
+ 2186:      *
+ 2187:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 2188:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command-else>' token
+ 2189:      */
+ 2190:     protected function reduce_rule_17($block = null)
+ 2191:     {
+ 2192:             $result = new \sergiosgc\Sieve_Parser\Script_Command_If('else', null, $block->getValue());
+ 2193:         return new \sergiosgc\Text_Tokenizer_Token('<command-else>', $result);
+ 2194:     }
+ 2195:     /* }}} */
+ 2196:     /* reduce_rule_14 {{{ */
+ 2197:     /**
+ 2198:      * Reduction function for rule 14 
+ 2199:      *
+ 2200:      * Rule 14 is:
+ 2201:      * <command-elsif>-><identifier-elsif><test><bracket-open><block>
+ 2202:      *
+ 2203:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 2204:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 2205:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command-elsif>' token
+ 2206:      */
+ 2207:     protected function reduce_rule_14($test = null,$block = null)
+ 2208:     {
+ 2209:             $result = new \sergiosgc\Sieve_Parser\Script_Command_If('elsif', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
+ 2210:         return new \sergiosgc\Text_Tokenizer_Token('<command-elsif>', $result);
+ 2211:     }
+ 2212:     /* }}} */
+ 2213:     /* reduce_rule_15 {{{ */
+ 2214:     /**
+ 2215:      * Reduction function for rule 15 
+ 2216:      *
+ 2217:      * Rule 15 is:
+ 2218:      * <command-elsif>-><identifier-elsif><test><bracket-open><block><command-elsif>
+ 2219:      *
+ 2220:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 2221:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 2222:      * @param Text_Tokenizer_Token Token of type '<command-elsif>'
+ 2223:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command-elsif>' token
+ 2224:      */
+ 2225:     protected function reduce_rule_15($test = null,$block = null,$else = null)
+ 2226:     {
+ 2227:             $result = new \sergiosgc\Sieve_Parser\Script_Command_If('elsif', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
+ 2228:         return new \sergiosgc\Text_Tokenizer_Token('<command-elsif>', $result);
+ 2229:     }
+ 2230:     /* }}} */
+ 2231:     /* reduce_rule_16 {{{ */
+ 2232:     /**
+ 2233:      * Reduction function for rule 16 
+ 2234:      *
+ 2235:      * Rule 16 is:
+ 2236:      * <command-elsif>-><identifier-elsif><test><bracket-open><block><command-else>
  2237:      *
- 2238:      * Rule 16 is:
- 2239:      * <command-elsif>-><identifier-elsif><test><bracket-open><block><command-else>
- 2240:      *
- 2241:      * @param Text_Tokenizer_Token Token of type '<test>'
- 2242:      * @param Text_Tokenizer_Token Token of type '<block>'
- 2243:      * @param Text_Tokenizer_Token Token of type '<command-else>'
- 2244:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command-elsif>' token
- 2245:      */
- 2246:     protected function reduce_rule_16($test = null,$block = null,$else = null)
- 2247:     {
- 2248:             $result = isset($else) ? $else->getValue() : [];
- 2249:         array_unshift($result, [ 'test' => $test->getValue(), 'commands' => $block->getValue() ]);
- 2250:         return new \sergiosgc\Text_Tokenizer_Token('<command-elsif>', $result);
- 2251:     }
- 2252:     /* }}} */
- 2253: }
+ 2238:      * @param Text_Tokenizer_Token Token of type '<test>'
+ 2239:      * @param Text_Tokenizer_Token Token of type '<block>'
+ 2240:      * @param Text_Tokenizer_Token Token of type '<command-else>'
+ 2241:      * @return Text_Tokenizer_Token Result token from reduction. It must be a '<command-elsif>' token
+ 2242:      */
+ 2243:     protected function reduce_rule_16($test = null,$block = null,$else = null)
+ 2244:     {
+ 2245:             $result = new \sergiosgc\Sieve_Parser\Script_Command_If('elsif', $test->getValue(), $block->getValue(), isset($else) ? $else->getValue() : null);
+ 2246:         return new \sergiosgc\Text_Tokenizer_Token('<command-elsif>', $result);
+ 2247:     }
+ 2248:     /* }}} */
+ 2249: }
 Read token <hash-comment>( A line
 ) state []
 -Shifting to state 14
@@ -3078,561 +3070,3 @@ Read token () state [1 3 12 29 47 52 52 53]
 -Reducing using reduce_rule_3 state [1 3 17] Result state [1 16]
 -Reducing using reduce_rule_1 state [1 16] Result state [1]
 -Accepting
-object(sergiosgc\Text_Tokenizer_Token)#5083 (2) {
-  ["_id":protected]=>
-  string(10) "<commands>"
-  ["_value":protected]=>
-  array(7) {
-    [0]=>
-    object(sergiosgc\Sieve_Parser\Script_Command_Require)#5088 (6) {
-      ["identifier"]=>
-      string(7) "require"
-      ["comment"]=>
-      object(sergiosgc\Sieve_Parser\Script_Comment)#2 (2) {
-        ["text"]=>
-        string(20) " A line
- Requires
-"
-        ["encoding"]=>
-        int(0)
-      }
-      ["capabilities"]=>
-      array(2) {
-        [0]=>
-        string(10) "imap4flags"
-        [1]=>
-        string(8) "fileinto"
-      }
-      ["arguments"]=>
-      array(0) {
-      }
-      ["tests"]=>
-      array(0) {
-      }
-      ["subcommands"]=>
-      array(0) {
-      }
-    }
-    [1]=>
-    object(sergiosgc\Sieve_Parser\Script_Command_If)#5089 (6) {
-      ["identifier"]=>
-      string(2) "if"
-      ["comment"]=>
-      object(sergiosgc\Sieve_Parser\Script_Comment)#5087 (2) {
-        ["text"]=>
-        string(22) " Whitelist addresses
-"
-        ["encoding"]=>
-        int(0)
-      }
-      ["testsAndCommands"]=>
-      array(1) {
-        [0]=>
-        array(2) {
-          ["test"]=>
-          object(sergiosgc\Sieve_Parser\Script_Test)#5092 (2) {
-            ["identifier"]=>
-            string(7) "address"
-            ["arguments"]=>
-            array(6) {
-              [0]=>
-              object(sergiosgc\Sieve_Parser\Script_Tag)#5081 (1) {
-                ["tag"]=>
-                string(3) "all"
-              }
-              [1]=>
-              object(sergiosgc\Sieve_Parser\Script_Tag)#5069 (1) {
-                ["tag"]=>
-                string(10) "comparator"
-              }
-              [2]=>
-              string(15) "i;ascii-casemap"
-              [3]=>
-              object(sergiosgc\Sieve_Parser\Script_Tag)#5068 (1) {
-                ["tag"]=>
-                string(2) "is"
-              }
-              [4]=>
-              array(3) {
-                [0]=>
-                string(11) "Resent-From"
-                [1]=>
-                string(6) "Sender"
-                [2]=>
-                string(4) "From"
-              }
-              [5]=>
-              array(2) {
-                [0]=>
-                string(30) "example2@gmail.com.example.com"
-                [1]=>
-                string(29) "example@gmail.com.example.com"
-              }
-            }
-          }
-          ["commands"]=>
-          array(2) {
-            [0]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Keep)#5082 (5) {
-              ["identifier"]=>
-              string(4) "keep"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-            [1]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Stop)#5066 (5) {
-              ["identifier"]=>
-              string(4) "stop"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-          }
-        }
-      }
-      ["arguments"]=>
-      array(0) {
-      }
-      ["tests"]=>
-      array(0) {
-      }
-      ["subcommands"]=>
-      array(0) {
-      }
-    }
-    [2]=>
-    object(sergiosgc\Sieve_Parser\Script_Command_If)#5049 (6) {
-      ["identifier"]=>
-      string(2) "if"
-      ["comment"]=>
-      object(sergiosgc\Sieve_Parser\Script_Comment)#5062 (2) {
-        ["text"]=>
-        string(26) " Database backup checker
-"
-        ["encoding"]=>
-        int(0)
-      }
-      ["testsAndCommands"]=>
-      array(1) {
-        [0]=>
-        array(2) {
-          ["test"]=>
-          object(sergiosgc\Sieve_Parser\Script_Test)#5067 (2) {
-            ["identifier"]=>
-            string(5) "anyof"
-            ["arguments"]=>
-            array(0) {
-            }
-          }
-          ["commands"]=>
-          array(2) {
-            [0]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Keep)#5022 (5) {
-              ["identifier"]=>
-              string(4) "keep"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-            [1]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Stop)#5064 (5) {
-              ["identifier"]=>
-              string(4) "stop"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-          }
-        }
-      }
-      ["arguments"]=>
-      array(0) {
-      }
-      ["tests"]=>
-      array(0) {
-      }
-      ["subcommands"]=>
-      array(0) {
-      }
-    }
-    [3]=>
-    object(sergiosgc\Sieve_Parser\Script_Command_If)#5018 (6) {
-      ["identifier"]=>
-      string(2) "if"
-      ["comment"]=>
-      object(sergiosgc\Sieve_Parser\Script_Comment)#5063 (2) {
-        ["text"]=>
-        string(16) " Verbose crons
-"
-        ["encoding"]=>
-        int(0)
-      }
-      ["testsAndCommands"]=>
-      array(1) {
-        [0]=>
-        array(2) {
-          ["test"]=>
-          object(sergiosgc\Sieve_Parser\Script_Test)#5020 (2) {
-            ["identifier"]=>
-            string(5) "anyof"
-            ["arguments"]=>
-            array(0) {
-            }
-          }
-          ["commands"]=>
-          array(2) {
-            [0]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Discard)#5017 (5) {
-              ["identifier"]=>
-              string(7) "discard"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-            [1]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Stop)#5056 (5) {
-              ["identifier"]=>
-              string(4) "stop"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-          }
-        }
-      }
-      ["arguments"]=>
-      array(0) {
-      }
-      ["tests"]=>
-      array(0) {
-      }
-      ["subcommands"]=>
-      array(0) {
-      }
-    }
-    [4]=>
-    object(sergiosgc\Sieve_Parser\Script_Command_If)#5011 (6) {
-      ["identifier"]=>
-      string(2) "if"
-      ["comment"]=>
-      object(sergiosgc\Sieve_Parser\Script_Comment)#5090 (2) {
-        ["text"]=>
-        string(13) " systemroot
-"
-        ["encoding"]=>
-        int(0)
-      }
-      ["testsAndCommands"]=>
-      array(1) {
-        [0]=>
-        array(2) {
-          ["test"]=>
-          object(sergiosgc\Sieve_Parser\Script_Test)#5061 (2) {
-            ["identifier"]=>
-            string(6) "header"
-            ["arguments"]=>
-            array(5) {
-              [0]=>
-              object(sergiosgc\Sieve_Parser\Script_Tag)#5065 (1) {
-                ["tag"]=>
-                string(10) "comparator"
-              }
-              [1]=>
-              string(15) "i;ascii-casemap"
-              [2]=>
-              object(sergiosgc\Sieve_Parser\Script_Tag)#5091 (1) {
-                ["tag"]=>
-                string(8) "contains"
-              }
-              [3]=>
-              string(7) "Subject"
-              [4]=>
-              string(9) "[sometag]"
-            }
-          }
-          ["commands"]=>
-          array(2) {
-            [0]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Fileinto)#5021 (6) {
-              ["identifier"]=>
-              string(8) "fileinto"
-              ["mailbox"]=>
-              string(7) "Servers"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-            [1]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Stop)#5019 (5) {
-              ["identifier"]=>
-              string(4) "stop"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-          }
-        }
-      }
-      ["arguments"]=>
-      array(0) {
-      }
-      ["tests"]=>
-      array(0) {
-      }
-      ["subcommands"]=>
-      array(0) {
-      }
-    }
-    [5]=>
-    object(sergiosgc\Sieve_Parser\Script_Command_If)#4991 (6) {
-      ["identifier"]=>
-      string(2) "if"
-      ["comment"]=>
-      object(sergiosgc\Sieve_Parser\Script_Comment)#5057 (2) {
-        ["text"]=>
-        string(21) " mxtoolbox 10.0.0.2
-"
-        ["encoding"]=>
-        int(0)
-      }
-      ["testsAndCommands"]=>
-      array(1) {
-        [0]=>
-        array(2) {
-          ["test"]=>
-          object(sergiosgc\Sieve_Parser\Script_Test)#5010 (2) {
-            ["identifier"]=>
-            string(5) "anyof"
-            ["arguments"]=>
-            array(0) {
-            }
-          }
-          ["commands"]=>
-          array(4) {
-            [0]=>
-            object(sergiosgc\Sieve_Parser\Script_Command)#5016 (5) {
-              ["identifier"]=>
-              string(7) "addflag"
-              ["arguments"]=>
-              array(1) {
-                [0]=>
-                array(1) {
-                  [0]=>
-                  string(5) "\Seen"
-                }
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-              ["comment"]=>
-              string(0) ""
-            }
-            [1]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Fileinto)#4993 (6) {
-              ["identifier"]=>
-              string(8) "fileinto"
-              ["mailbox"]=>
-              string(5) "Trash"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-            [2]=>
-            object(sergiosgc\Sieve_Parser\Script_Command)#5009 (5) {
-              ["identifier"]=>
-              string(10) "removeflag"
-              ["arguments"]=>
-              array(1) {
-                [0]=>
-                array(1) {
-                  [0]=>
-                  string(5) "\Seen"
-                }
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-              ["comment"]=>
-              string(0) ""
-            }
-            [3]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Stop)#5002 (5) {
-              ["identifier"]=>
-              string(4) "stop"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-          }
-        }
-      }
-      ["arguments"]=>
-      array(0) {
-      }
-      ["tests"]=>
-      array(0) {
-      }
-      ["subcommands"]=>
-      array(0) {
-      }
-    }
-    [6]=>
-    object(sergiosgc\Sieve_Parser\Script_Command_If)#4984 (6) {
-      ["identifier"]=>
-      string(2) "if"
-      ["comment"]=>
-      object(sergiosgc\Sieve_Parser\Script_Comment)#5058 (2) {
-        ["text"]=>
-        string(21) " Google My Business
-"
-        ["encoding"]=>
-        int(0)
-      }
-      ["testsAndCommands"]=>
-      array(1) {
-        [0]=>
-        array(2) {
-          ["test"]=>
-          object(sergiosgc\Sieve_Parser\Script_Test)#4990 (2) {
-            ["identifier"]=>
-            string(5) "allof"
-            ["arguments"]=>
-            array(0) {
-            }
-          }
-          ["commands"]=>
-          array(2) {
-            [0]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Discard)#4752 (5) {
-              ["identifier"]=>
-              string(7) "discard"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-            [1]=>
-            object(sergiosgc\Sieve_Parser\Script_Command_Stop)#4996 (5) {
-              ["identifier"]=>
-              string(4) "stop"
-              ["comment"]=>
-              string(0) ""
-              ["arguments"]=>
-              array(0) {
-              }
-              ["tests"]=>
-              array(0) {
-              }
-              ["subcommands"]=>
-              array(0) {
-              }
-            }
-          }
-        }
-      }
-      ["arguments"]=>
-      array(0) {
-      }
-      ["tests"]=>
-      array(0) {
-      }
-      ["subcommands"]=>
-      array(0) {
-      }
-    }
-  }
-}

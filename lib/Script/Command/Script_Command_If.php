@@ -2,44 +2,56 @@
 namespace sergiosgc\Sieve_Parser;
 
 class Script_Command_If extends Script_Command {
-    public $identifier;
-    public $comment = '';
-    public $testsAndCommands = [];
-
-    public function __construct($testsAndCommands) {
-        $this->identifier = 'if';
-        $this->comment = '';
-        foreach ($testsAndCommands as $item) {
-            $this->testsAndCommands[] = [
-                'test' => $item['test'],
-                'commands' => $item['commands']
-            ];
-        }
+    private $comment = null;
+    private $identifier; 
+    private $test;
+    private $block;
+    private $else;
+    public function __construct($identifier, $test, $block, $else = null) {
+        if (!in_array($identifier, ['if', 'elsif', 'else'])) throw new \Exception(sprintf('Invalid identifier %s for IF command', $identifier));
+        $this->identifier = $identifier;
+        $this->test = $test;
+        if (is_array($block)) $block = new Script_Commands($block);
+        $this->block = $block;
+        $this->else = $else;
     }
-    public function __toString() 
-    {
-        ob_start();
-        print((string) $this->comment);
-        print($this->identifier);
-        print(' ');
-        foreach ($this->testsAndCommands as $tc) {
-//            var_dump((string) $tc['test'], $tc['test']); exit;
-            printf("%s {\r\n%s}\r\n", 
-                (string) $tc['test'],
-                '  ' . implode('  ', array_map(function($command) { return (string) $command; }, $tc['commands']))
-                );
-        }
-        return ob_get_clean();
+    public function getComment() {
+        return $this->comment;
     }
-    public function matchesTemplate($templateIfCommand) {
-        if (get_class($templateIfCommand) != get_class()) return false;
-        if (!$this->identifierMatchesTemplate($templateIfCommand)) return false;
-        for ($i=0; $i < count($this->testsAndCommands); $i++) {
-            if (gettype($this->testsAndCommands[$i]['test']) != gettype($templateIfCommand->testsAndCommands[$i]['test'])) return false;
-            if (is_object($this->testsAndCommands[$i]['test']) && !$this->testsAndCommands[$i]['test']->matchesTemplate($templateIfCommand->testsAndCommands[$i]['test'])) return false;
-            if (!Script::commandBlockMatchesTemplate($this->testsAndCommands[$i]['commands'], $templateIfCommand->testsAndCommands[$i]['commands'])) return false;
-        }
+    public function setComment($comment) {
+        $this->comment = $comment;
+    }
+    public function getIdentifier() {
+        return $this->identifier;
+    }
+    public function getArguments() {
+        if ($this->test) return [ $this->test ];
+        return [];
+    }
+    public function getCommandBlock() {
+        return $this->block;
+    }
+    public function getElse() {
+        return $this->else;
+    }
+    public function __toString() {
+        $result = "\r\n" . parent::__toString();
+        if (is_null($this->else)) return $result;
+        if (substr($result, -2) == "\r\n") $result = substr($result, 0, -2);
+        $result .= ' ' . (string) $this->else;
+        return $result;
+    }
+    /*
+    public function identifierMatchesTemplate($templateCommand) {
+        if (!parent::identifierMatchesTemplate($templateCommand)) return false;
+        if ($this->else && !$this->else->identifierMatchesTemplate($templateCommand->getElse())) return false;
         return true;
     }
+    public function matchesTemplate(Script_Command $templateCommand) {
+        if (!parent::matchesTemplate($templateCommand)) return false;
+        if ($this->else && !$this->else->matchesTemplate($templateCommand->getElse())) return false;
+        return true;
+    }
+     */
 }
 

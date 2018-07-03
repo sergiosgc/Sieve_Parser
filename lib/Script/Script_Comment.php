@@ -16,3 +16,4 @@ class Script_Comment {
         return sprintf('/*%s*/', preg_replace('_\\*/_', '', (string) $this->text));
     }
 }
+

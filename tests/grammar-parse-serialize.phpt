@@ -1,3 +1,30 @@
+--TEST--
+Parse sieve grammar
+--FILE--
+<?php
+require_once(__DIR__ . '/../vendor/autoload.php');
+
+$tokenizer = new \sergiosgc\Text_Parser_BNF_Tokenizer(
+    file_get_contents(getcwd() . '/inputs/grammar.txt'),
+    new \sergiosgc\Text_Tokenizer_Regex_Matcher_Php());
+
+$sieveGrammar = (new \sergiosgc\Text_Parser_BNF($tokenizer))->parse()->getValue();
+//$parser->setDebugLevel(10);
+$generator = new \sergiosgc\Text_Parser_Generator_LALR($sieveGrammar);
+try {
+    eval($generator->generate('TestSieveParser'));
+} catch (\sergiosgc\Text_Parser_Generator_ShiftReduceConflictException $ex) {
+    print($ex->getMessage());
+}
+
+$tokenizer = new \sergiosgc\Sieve_Parser\Tokenizer(
+    file_get_contents(__DIR__ . '/inputs/1.txt'),
+    new \sergiosgc\Text_Tokenizer_Regex_Matcher_Php());
+
+$parser = new TestSieveParser($tokenizer);
+print(new \sergiosgc\Sieve_Parser\Script($parser->parse()->getValue()));
+?>
+--EXPECT--
 # A line
 # Requires
 require ["fileinto", "imap4flags"];

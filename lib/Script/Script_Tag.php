@@ -9,5 +9,8 @@ class Script_Tag {
     public function __toString() {
         return ':' . $this->tag;
     }
+    public function matchesTemplate($template) {
+        return $this->tag == $template->tag;
+    }
 }
 

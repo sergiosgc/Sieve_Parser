@@ -1,7 +1,7 @@
 # A template
 if address :all :comparator "i;ascii-casemap" :is ["Resent-From", "Sender", "From"] "$addressList" {
   keep;
-  optional_quit_stop;
+  optional_quit_go;
   stop;
   optional_store_keep;
 }
