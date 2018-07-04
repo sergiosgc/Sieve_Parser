@@ -41,17 +41,11 @@ class Script_Command_If extends Script_Command {
         $result .= ' ' . (string) $this->else;
         return $result;
     }
-    /*
-    public function identifierMatchesTemplate($templateCommand) {
-        if (!parent::identifierMatchesTemplate($templateCommand)) return false;
-        if ($this->else && !$this->else->identifierMatchesTemplate($templateCommand->getElse())) return false;
-        return true;
+    public function templateVariables() {
+        return Script::array_merge_deep(
+            parent::templateVariables(),
+            $this->else ? $this->else->templateVariables() : []
+        );
     }
-    public function matchesTemplate(Script_Command $templateCommand) {
-        if (!parent::matchesTemplate($templateCommand)) return false;
-        if ($this->else && !$this->else->matchesTemplate($templateCommand->getElse())) return false;
-        return true;
-    }
-     */
 }
 

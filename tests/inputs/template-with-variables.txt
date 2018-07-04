@@ -1,0 +1,25 @@
+# A template
+# ---TEMPLATE VARIABLES---
+# ---
+# addressList:
+#   type: list
+#   label: senders
+# quit:
+#   type: boolean
+#   label: Quit?
+#   options:
+#     1: "Yes"
+#     0: "No"
+# store:
+#   type: boolean
+#   label: Store?
+#   options:
+#     1: Store
+#     0: Discard
+# ---TEMPLATE VARIABLES---
+if address :all :comparator "i;ascii-casemap" :is ["Resent-From", "Sender", "From"] "$addressList" {
+  keep;
+  optional_quit_go;
+  stop;
+  optional_store_keep;
+}

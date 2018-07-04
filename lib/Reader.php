@@ -9,7 +9,6 @@ class Reader {
 
         $parser = new Parser($tokenizer);
         return new Script($parser->parse()->getValue());
-
     }
 }
 

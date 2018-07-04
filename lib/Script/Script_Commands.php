@@ -12,4 +12,7 @@ class Script_Commands {
     public function matchesTemplate($template) {
         return Script::optionallyMatchesTemplate($this->commands, $template->commands);
     }
+    public function templateVariables() {
+        return array_reduce(array_map(function ($c) { return $c->templateVariables(); }, $this->commands), ['\sergiosgc\Sieve_Parser\Script', 'array_merge_deep'], []);
+    }
 }

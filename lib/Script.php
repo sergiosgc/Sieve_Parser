@@ -67,5 +67,27 @@ class Script {
     public function matchesTemplate($template) {
         return $this->commands->matchesTemplate($template->commands);
     }
+    public function templateVariables() {
+        return $this->commands->templateVariables();
+    }
+    public static function argumentTemplateVariables($argument) {
+        if (is_callable($argument, 'templateVariables')) return $argument->templateVariables();
+        if (is_array($argument)) return array_map(array('\\sergiosgc\\Sieve_Parser\\Script', 'argumentTemplateVariables'), $argument);
+        if (is_string($argument)) {
+            if (strlen($argument) && $argument[0] == '$') return [ substr($argument, 1) => [ 'name' => substr($argument, 1) ]];
+            return [];
+        }
+        return [];
+    }
+    public static function array_merge_deep($left, $right) {
+        foreach ($right as $index => $value) {
+            if (!isset($left[$index]) || !is_array($left[$index]) || !is_array($value)) {
+                $left[$index] = $right[$index]; 
+                continue;
+            }
+            $left[$index] = static::array_merge_deep($left[$index], $right[$index]);
+        }
+        return $left;
+    }
 }
 

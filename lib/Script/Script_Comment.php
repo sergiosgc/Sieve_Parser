@@ -15,5 +15,26 @@ class Script_Comment {
         if ($this->encoding == self::ENCODING_HASH) return preg_replace('_^_m', '#', (string) $this->text);
         return sprintf('/*%s*/', preg_replace('_\\*/_', '', (string) $this->text));
     }
+    public function templateVariables() {
+        if (!preg_match('_.*---TEMPLATE VARIABLES---(.*)---TEMPLATE VARIABLES---.*_ms', $this->text, $matches)) return [];
+        $text = $matches[1];
+        // Remove empty lines
+        $text = implode("\n", array_filter(explode("\n", $text), function($line) { return !((bool) preg_match('_^\s*$_', $line)); }));
+        // Calculate indent
+        $indent = array_reduce(
+            array_map(function($line) { 
+                if (!preg_match('_^(\s*).*_', $line, $matches)) return 0;
+                return strlen($matches[1]);
+            }, explode("\n", $text)),
+            function($acc, $len) { return min($acc, $len); },
+            1024);
+        if ($indent) {
+            $regexp = '_^';
+            while ($indent) { $regexp .= ' '; $indent--; }
+            $regexp .= '_m';
+            $text = preg_replace($regexp, '', $text);
+        }
+        return yaml_parse($text);
+    }
 }
 
