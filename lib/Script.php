@@ -67,17 +67,28 @@ class Script {
     public function matchesTemplate($template) {
         return $this->commands->matchesTemplate($template->commands);
     }
-    public function templateVariables() {
-        return $this->commands->templateVariables();
-    }
-    public static function argumentTemplateVariables($argument) {
-        if (is_callable($argument, 'templateVariables')) return $argument->templateVariables();
-        if (is_array($argument)) return array_map(array('\\sergiosgc\\Sieve_Parser\\Script', 'argumentTemplateVariables'), $argument);
-        if (is_string($argument)) {
-            if (strlen($argument) && $argument[0] == '$') return [ substr($argument, 1) => [ 'name' => substr($argument, 1) ]];
+    public static function applyTemplateVariables($template, $instance) {
+        if (is_callable(array($template, 'templateVariables'))) return $template->templateVariables($instance);
+        if (is_array($template)) {
+            $result = [];
+            foreach($template as $index => $templateItem) {
+                $subresult = Script::applyTemplateVariables($templateItem, is_array($instance) && isset($instance[$index]) ? $instance[$index] : null);
+                $result = Script::array_merge_deep($result, $subresult);
+            }
+            return $result;
+        }
+        if (is_string($template)) {
+            if (strlen($template) && $template[0] == '$') {
+                $result = [ 'name' => substr($template, 1) ];
+                if (!is_null($instance)) $result['value'] = $instance;
+                return [ substr($argument, 1) => $result ];
+            }
             return [];
         }
-        return [];
+        throw new \Exception('Unable to apply templateVariables to ' . $template);
+    }
+    public function templateVariables($extractValues = null) {
+        return Script::applyTemplateVariables($this->commands, $extractValues && $extractValues->commands ? $extractValues->commands : null);
     }
     public static function array_merge_deep($left, $right) {
         foreach ($right as $index => $value) {

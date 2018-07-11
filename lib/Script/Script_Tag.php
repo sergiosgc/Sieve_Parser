@@ -12,8 +12,12 @@ class Script_Tag {
     public function matchesTemplate($template) {
         return $this->tag == $template->tag;
     }
-    public function templateVariables() {
-        if (strlen($this->tag) && $this->tag[0] == '$') return [ substr($this->tag, 1) => [ 'name' => substr($this->tag, 1) ]];
+    public function templateVariables($extractValues = null) {
+        if (strlen($this->tag) && $this->tag[0] == '$') {
+            $result = [ 'name' => substr($this->tag, 1) ];
+            if (!is_null($extractValues)) $result['value'] = (bool) $extractValues;
+            return [ substr($this->tag, 1) => $result ];
+        }
         return [];
     }
 }

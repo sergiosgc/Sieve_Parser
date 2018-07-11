@@ -43,13 +43,15 @@ abstract class Script_Command {
         if (preg_match('/optional_[a-z]+_(.*)/', $this->getIdentifier())) return true;
         return false;
     }
-    public function templateVariables() {
+    public function templateVariables($extractValues = null) {
         $result = [];
-
-        if (preg_match('/optional_([a-z]+)_.*/', $this->getIdentifier(), $matches)) $result[$matches[1]] = ['name' => $matches[1]];
-        if ($this->getArguments()) $result = Script::array_merge_deep($result, array_reduce(array_map(array('\\sergiosgc\\Sieve_Parser\\Script', 'argumentTemplateVariables'), $this->getArguments()), ['\sergiosgc\Sieve_Parser\Script', 'array_merge_deep'], []));
-        if ($this->getCommandBlock()) $result = Script::array_merge_deep($result, $this->getCommandBlock()->templateVariables());
         if ($this->getComment()) $result = Script::array_merge_deep($result, $this->getComment()->templateVariables());
+        if (preg_match('/optional_([a-z]+)_.*/', $this->getIdentifier(), $matches)) {
+            $result[$matches[1]] = ['name' => $matches[1]];
+            if (!is_null($extractValues)) $result[$matches[1]]['value'] = (bool) $extractValues;
+        }
+        if ($this->getArguments()) $result = Script::array_merge_deep($result, Script::applyTemplateVariables($this->getArguments(), $extractValues && $extractValues->getArguments() ? $extractValues->getArguments() : null));
+        if ($this->getCommandBlock()) $result = Script::array_merge_deep($result, Script::applyTemplateVariables($this->getCommandBlock(), $extractValues && $extractValues->getCommandBlock() ? $extractValues->getCommandBlock() : null));
         return $result;
     }
 }

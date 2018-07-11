@@ -41,10 +41,10 @@ class Script_Command_If extends Script_Command {
         $result .= ' ' . (string) $this->else;
         return $result;
     }
-    public function templateVariables() {
+    public function templateVariables($extractValues = null) {
         return Script::array_merge_deep(
-            parent::templateVariables(),
-            $this->else ? $this->else->templateVariables() : []
+            parent::templateVariables($extractValues),
+            $this->else ? $this->else->templateVariables($extractValues && $extractValues->else ? $extractValues->else : null) : []
         );
     }
 }
