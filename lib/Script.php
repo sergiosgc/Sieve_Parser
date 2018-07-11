@@ -81,7 +81,7 @@ class Script {
             if (strlen($template) && $template[0] == '$') {
                 $result = [ 'name' => substr($template, 1) ];
                 if (!is_null($instance)) $result['value'] = $instance;
-                return [ substr($argument, 1) => $result ];
+                return [ substr($template, 1) => $result ];
             }
             return [];
         }
