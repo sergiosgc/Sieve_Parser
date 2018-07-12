@@ -60,6 +60,7 @@ class Tokenizer extends \sergiosgc\Text_Tokenizer_Regex {
         $this->addRegex('@([ \\r\\n\\t])*text:(?<text>[ \\t]*(#[^\\r\\n]*)?\\r\\n([.][^\\r]+\\r\\n|[^.\\r]*\\r\\n)*[.]\\r\\n)@Am', '<multi-line>', '<text>');
 // identifier         = (ALPHA / "_") *(ALPHA / DIGIT / "_")
 		// Out of order so that it does not capture the "text:" in <multi-line>
+        $this->addRegex('@([ \\r\\n\\t])*(?<identifier>not)@Ai', '<identifier-not>', '<identifier>');
         $this->addRegex('@([ \\r\\n\\t])*(?<identifier>if)@Ai', '<identifier-if>', '<identifier>');
         $this->addRegex('@([ \\r\\n\\t])*(?<identifier>elsif)@Ai', '<identifier-elsif>', '<identifier>');
         $this->addRegex('@([ \\r\\n\\t])*(?<identifier>else)@Ai', '<identifier-else>', '<identifier>');

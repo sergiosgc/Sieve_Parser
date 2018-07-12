@@ -95,6 +95,11 @@ array_push($acc->getValue(), $arg->getValue());
 return $acc;
 >>>
 
+<test> ::= <identifier-not> <test>(test)
+<<<
+$result = new \sergiosgc\Sieve_Parser\Script_Test('not', [], [ $test->getValue() ]);
+>>>
+
 <test> ::= <identifier>(id) <arguments>(args) | <identifier>(id)
 <<<
 if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', []);
@@ -106,7 +111,7 @@ $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), array_merge($
 $result = $tests->getValue();
 >>>
 
-<test-plus-csv> ::= <test>(test) | <test>(test) <comma> <test-plus-csv>(acc)
+<test-plus-csv> ::= <test>(test) | <test-plus-csv>(acc) <comma> <test>(test)
 <<<
 if (!isset($acc)) $acc = new \sergiosgc\Text_Tokenizer_Token('<test-plus-csv>', []);
 array_unshift($acc->getValue(), $test->getValue());
