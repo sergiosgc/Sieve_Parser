@@ -22,6 +22,11 @@ return new \sergiosgc\Text_Tokenizer_Token('<commented-command>', $command->getV
 $result = new \sergiosgc\Sieve_Parser\Script_Command_Stop();
 >>>
 
+<command> ::= <identifier-notify> <string>(destination) <semicolon>
+<<<
+$result = new \sergiosgc\Sieve_Parser\Script_Command_Generic('notify', [$destination->getValue()]);
+>>>
+
 <command> ::= <identifier-fileinto> <string>(mailbox) <semicolon>
 <<<
 $result = new \sergiosgc\Sieve_Parser\Script_Command_Fileinto($mailbox->getValue());
