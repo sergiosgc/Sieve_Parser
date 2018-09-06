@@ -29,4 +29,16 @@ class Script_Test extends Script_Command {
         if (substr($result, -3) == ";\r\n") $result = substr($result, 0, -3);
         return $result;
     }
+    public function instantiateFromTemplate($values) {
+        $identifier = $this->_instantiateIdentifier($values);
+        if (!$identifier) return FALSE;
+        $arguments = [];
+        foreach($this->arguments as $argument) {
+            $instantiated = is_object($argument) ? $argument->instantiateFromTemplate($values) : Script::instantiateScalarFromTemplate($argument, $values);
+            if ($instantiated !== FALSE) $arguments[] = $instantiated;
+        }
+        $result = new Script_Test($identifier, $arguments);
+        if ($this->comment) $result->setComment($this->comment->instantiateFromTemplate($values));
+        return $result;
+    }
 }

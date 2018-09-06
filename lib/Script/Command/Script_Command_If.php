@@ -47,5 +47,16 @@ class Script_Command_If extends Script_Command {
             $this->else ? $this->else->templateVariables($extractValues && $extractValues->else ? $extractValues->else : null) : []
         );
     }
+    public function instantiateFromTemplate($values) {
+        $identifier = $this->_instantiateIdentifier($values);
+        if (!$identifier) return FALSE;
+        $result = new Script_Command_If(
+            $identifier,
+            $this->test->instantiateFromTemplate($values),
+            $this->block->instantiateFromTemplate($values),
+            $this->else ? $this->else->instantiateFromTemplate($values) : null);
+        if ($this->comment) $result->setComment($this->comment->instantiateFromTemplate($values));
+        return $result;
+    }
 }
 

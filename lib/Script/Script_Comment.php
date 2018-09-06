@@ -36,5 +36,9 @@ class Script_Comment {
         }
         return yaml_parse($text);
     }
+    public function instantiateFromTemplate($values) {
+        if (preg_match('_(.*)---TEMPLATE VARIABLES---.*---TEMPLATE VARIABLES---(.*)_ms', $this->text, $matches)) return new Script_Comment($matches[1] . $matches[2]);
+        return new Script_Comment($this->text);
+    }
 }
 

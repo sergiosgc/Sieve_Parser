@@ -15,4 +15,10 @@ class Script_Commands {
     public function templateVariables($extractValues = null) {
         return Script::applyTemplateVariables($this->commands, $extractValues && $extractValues->commands ? $extractValues->commands : null);
     }
+    public function instantiateFromTemplate($values) {
+        $result = new Script_Commands([]);
+        foreach ($this->commands as $command) $result->commands[] = $command->instantiateFromTemplate($values);
+        $this->commands = array_filter($this->commands);
+        return $result;
+    }
 }

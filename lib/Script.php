@@ -100,5 +100,23 @@ class Script {
         }
         return $left;
     }
+    public function instantiateFromTemplate($values) {
+        return new Script($this->commands->instantiateFromTemplate($values));
+    }
+    public static function instantiateScalarFromTemplate($scalar, $values) {
+        if (is_string($scalar)) {
+            if (strlen($scalar) && $scalar[0] == '$') {
+                $varName = substr($scalar, 1);
+                if (isset($values[$varName])) return $values[$varName];
+                return '';
+            }
+            if (preg_match('/optional_([a-z]+)_(.*)/', $scalar, $matches)) {
+                $varName = $matches[1];
+                $value = $matches[2];
+                if (isset($values[$varName]) && $values[$varName]) return $value;
+                return false;
+            }
+        }
+        return $scalar;
+    }
 }
-

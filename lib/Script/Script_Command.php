@@ -54,5 +54,14 @@ abstract class Script_Command {
         if ($this->getCommandBlock()) $result = Script::array_merge_deep($result, Script::applyTemplateVariables($this->getCommandBlock(), $extractValues && $extractValues->getCommandBlock() ? $extractValues->getCommandBlock() : null));
         return $result;
     }
+    public function _instantiateIdentifier($values) {
+        if (preg_match('/optional_([a-z]+)_(.*)/', $this->getIdentifier(), $matches)) {
+            $varName = $matches[1];
+            $result = $matches[2];
+            if (!isset($values[$varName]) || !$values[$varName]) return FALSE;
+            return $result;
+        }
+        return $this->getIdentifier();
+    }
 }
 
