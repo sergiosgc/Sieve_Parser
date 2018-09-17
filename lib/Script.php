@@ -37,8 +37,8 @@ class Script {
     public static function optionallyMatchesTemplate($leftArray, $rightArray) {
         if (!is_array($leftArray) || !is_array($rightArray)) throw new \Exception('Arrays expected');
         $thereAreOptionals = false;
-        foreach($leftArray as $argument) if (is_callable($argument, 'isOptionalInTemplate') && $argument->isOptionalInTemplate) $thereAreOptionals = true;
-        foreach($rightArray as $argument) if (is_callable($argument, 'isOptionalInTemplate') && $argument->isOptionalInTemplate) $thereAreOptionals = true;
+        foreach($leftArray as $argument) if (is_object($argument) && is_callable($argument, 'isOptionalInTemplate') && $argument->isOptionalInTemplate()) $thereAreOptionals = true;
+        foreach($rightArray as $argument) if (is_object($argument) && is_callable($argument, 'isOptionalInTemplate') && $argument->isOptionalInTemplate()) $thereAreOptionals = true;
         // The match algorithm is different when in the presence of optional arguments or not. When there are no optional arguments, ignore the order on matching
         if ($thereAreOptionals) {
             // When dealing with optionals, match in-order, and skip optionals where needed to complete the match

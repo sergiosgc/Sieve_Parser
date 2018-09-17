@@ -9,7 +9,7 @@ if address :all :comparator "i;ascii-casemap" :is ["From", "Sender", "Resent-Fro
 }
 
 # Database backup checker
-if anyof ( header :comparator "i;ascii-casemap" :contains "Subject" "Database backup incomplete", header :comparator "i;ascii-casemap" :contains "Subject" "Database backup missing" ) {
+if not anyof ( header :comparator "i;ascii-casemap" :contains "Subject" "Database backup incomplete", header :comparator "i;ascii-casemap" :contains "Subject" "Database backup missing" ) {
  keep;
  stop;
 }
@@ -38,4 +38,9 @@ if anyof ( header :comparator "i;octet" :contains "Subject" "BLACKLIST - ADDED -
 if allof ( address :all :comparator "i;ascii-casemap" :is "From" "googlemybusiness-noreply@google.com", address :all :comparator "i;ascii-casemap" :is "To" "googlemybusiness-noreply@google.com" ) {
  discard;
  stop;
+}
+
+# Not
+if not false {
+ keep;
 }

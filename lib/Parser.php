@@ -1749,8 +1749,11 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_34($id = null)
     {
-            if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', []);
-        $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), array_merge($args->getValue()['arguments'], $args->getValue()['tests']));
+            if (isset($args)) {
+            $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), array_merge($args->getValue()['arguments'], $args->getValue()['tests']));
+        } else {
+            $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), []);
+        }
         return new \sergiosgc\Text_Tokenizer_Token('<test>', $result);
     }
     /* }}} */
@@ -1998,7 +2001,7 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_32($test = null)
     {
-            $result = new \sergiosgc\Sieve_Parser\Script_Test('not', [], [ $test->getValue() ]);
+            $result = new \sergiosgc\Sieve_Parser\Script_Test('not', [ $test->getValue() ]);
         return new \sergiosgc\Text_Tokenizer_Token('<test>', $result);
     }
     /* }}} */
@@ -2015,8 +2018,11 @@ class Parser extends \sergiosgc\Text_Parser_LALR
      */
     protected function reduce_rule_33($id = null,$args = null)
     {
-            if (!isset($args)) $args = new \sergiosgc\Text_Tokenizer_Token('<arguments>', []);
-        $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), array_merge($args->getValue()['arguments'], $args->getValue()['tests']));
+            if (isset($args)) {
+            $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), array_merge($args->getValue()['arguments'], $args->getValue()['tests']));
+        } else {
+            $result = new \sergiosgc\Sieve_Parser\Script_Test($id->getValue(), []);
+        }
         return new \sergiosgc\Text_Tokenizer_Token('<test>', $result);
     }
     /* }}} */

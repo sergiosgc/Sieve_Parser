@@ -37,7 +37,7 @@ Lexer output token {<quoted-string>, 'example\@gmail.com.example.com'}
 Lexer output token {<comma>, ','}
 Lexer output token {<quoted-string>, 'example2\@gmail.com.example.com'}
 Lexer output token {<square-parenthesis-close>, ']'}
-Lexer output token {<bracket-open>, '  {'}
+Lexer output token {<bracket-open>, ' {'}
 Lexer output token {<identifier-keep>, 'keep'}
 Lexer output token {<semicolon>, ';'}
 Lexer output token {<identifier-stop>, 'stop'}
@@ -45,6 +45,7 @@ Lexer output token {<semicolon>, ';'}
 Lexer output token {<bracket-close>, '\r\n}'}
 Lexer output token {<hash-comment>, ' Database backup checker\r\n'}
 Lexer output token {<identifier-if>, 'if'}
+Lexer output token {<identifier-not>, 'not'}
 Lexer output token {<identifier>, 'anyof'}
 Lexer output token {<parenthesis-open>, ' ('}
 Lexer output token {<identifier>, 'header'}
@@ -99,7 +100,7 @@ Lexer output token {<quoted-string>, 'i;ascii-casemap'}
 Lexer output token {<tag>, 'contains'}
 Lexer output token {<quoted-string>, 'Subject'}
 Lexer output token {<quoted-string>, '[sometag]'}
-Lexer output token {<bracket-open>, '  {'}
+Lexer output token {<bracket-open>, ' {'}
 Lexer output token {<identifier-fileinto>, 'fileinto'}
 Lexer output token {<quoted-string>, 'Servers'}
 Lexer output token {<semicolon>, ';'}
@@ -165,5 +166,13 @@ Lexer output token {<bracket-open>, ' {'}
 Lexer output token {<identifier-discard>, 'discard'}
 Lexer output token {<semicolon>, ';'}
 Lexer output token {<identifier-stop>, 'stop'}
+Lexer output token {<semicolon>, ';'}
+Lexer output token {<bracket-close>, '\r\n}'}
+Lexer output token {<hash-comment>, ' Not\r\n'}
+Lexer output token {<identifier-if>, 'if'}
+Lexer output token {<identifier-not>, 'not'}
+Lexer output token {<identifier>, 'false'}
+Lexer output token {<bracket-open>, ' {'}
+Lexer output token {<identifier-keep>, 'keep'}
 Lexer output token {<semicolon>, ';'}
 Lexer output token {<bracket-close>, '\r\n}'}

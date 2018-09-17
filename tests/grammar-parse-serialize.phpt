@@ -36,13 +36,13 @@ if address :all :comparator "i;ascii-casemap" :is ["From", "Sender", "Resent-Fro
 }
 
 # Database backup checker
-if anyof ( header :comparator "i;ascii-casemap" :contains "Subject" "Database backup incomplete", header :comparator "i;ascii-casemap" :contains "Subject" "Database backup missing" ) {
+if not anyof ( header :comparator "i;ascii-casemap" :contains "Subject" "Database backup missing", header :comparator "i;ascii-casemap" :contains "Subject" "Database backup incomplete" ) {
  keep;
  stop;
 }
 
 # Verbose crons
-if anyof ( header :comparator "i;octet" :contains "Subject" "cron", header :comparator "i;ascii-casemap" :is "Subject" "[sometag] Cron <root@example.com>" ) {
+if anyof ( header :comparator "i;ascii-casemap" :is "Subject" "[sometag] Cron <root@example.com>", header :comparator "i;octet" :contains "Subject" "cron" ) {
  discard;
  stop;
 }
@@ -54,7 +54,7 @@ if header :comparator "i;ascii-casemap" :contains "Subject" "[sometag]" {
 }
 
 # mxtoolbox 10.0.0.2
-if anyof ( header :comparator "i;octet" :contains "Subject" "BLACKLIST - ADDED - 10.0.0.2", header :comparator "i;octet" :contains "Subject" "BLACKLIST - REMOVED - 10.0.0.2" ) {
+if anyof ( header :comparator "i;octet" :contains "Subject" "BLACKLIST - REMOVED - 10.0.0.2", header :comparator "i;octet" :contains "Subject" "BLACKLIST - ADDED - 10.0.0.2" ) {
  addflag ["\\Seen"];
  fileinto "Trash";
  removeflag ["\\Seen"];
@@ -62,7 +62,12 @@ if anyof ( header :comparator "i;octet" :contains "Subject" "BLACKLIST - ADDED -
 }
 
 # Google My Business
-if allof ( address :all :comparator "i;ascii-casemap" :is "From" "googlemybusiness-noreply@google.com", address :all :comparator "i;ascii-casemap" :is "To" "googlemybusiness-noreply@google.com" ) {
+if allof ( address :all :comparator "i;ascii-casemap" :is "To" "googlemybusiness-noreply@google.com", address :all :comparator "i;ascii-casemap" :is "From" "googlemybusiness-noreply@google.com" ) {
  discard;
  stop;
+}
+
+# Not
+if not false {
+ keep;
 }
