@@ -36,33 +36,54 @@ class Script {
     }
     public static function optionallyMatchesTemplate($leftArray, $rightArray) {
         if (!is_array($leftArray) || !is_array($rightArray)) throw new \Exception('Arrays expected');
-        $leftCursor = $rightCursor = 0;
-        while ($leftCursor < count($leftArray) && $rightCursor < count($rightArray)) {
-            if (static::matchesTemplateOrIsVariable($leftArray[$leftCursor], $rightArray[$rightCursor])) { // Match. Consume both and continue
-                $leftCursor++;
-                $rightCursor++;
-                continue;
+        $thereAreOptionals = false;
+        foreach($leftArray as $argument) if (is_callable($argument, 'isOptionalInTemplate') && $argument->isOptionalInTemplate) $thereAreOptionals = true;
+        foreach($rightArray as $argument) if (is_callable($argument, 'isOptionalInTemplate') && $argument->isOptionalInTemplate) $thereAreOptionals = true;
+        // The match algorithm is different when in the presence of optional arguments or not. When there are no optional arguments, ignore the order on matching
+        if ($thereAreOptionals) {
+            // When dealing with optionals, match in-order, and skip optionals where needed to complete the match
+            $leftCursor = $rightCursor = 0;
+            while ($leftCursor < count($leftArray) && $rightCursor < count($rightArray)) {
+                if (static::matchesTemplateOrIsVariable($leftArray[$leftCursor], $rightArray[$rightCursor])) { // Match. Consume both and continue
+                    $leftCursor++;
+                    $rightCursor++;
+                    continue;
+                }
+                // No match. Try to consume optional left or right and continue
+                if (is_callable(array($leftArray[$leftCursor], 'isOptionalInTemplate')) && $leftArray[$leftCursor]->isOptionalInTemplate()) {
+                    $leftCursor++;
+                    continue;
+                }
+                if (is_callable(array($rightArray[$rightCursor], 'isOptionalInTemplate')) && $rightArray[$rightCursor]->isOptionalInTemplate()) {
+                    $rightCursor++;
+                    continue;
+                }
+                
+                // No match and no optional content to consume
+                return false;
             }
-            // No match. Try to consume optional left or right and continue
-            if (is_callable(array($leftArray[$leftCursor], 'isOptionalInTemplate')) && $leftArray[$leftCursor]->isOptionalInTemplate()) {
-                $leftCursor++;
-                continue;
+            // Consume remaining optionals
+            while ($leftCursor < count($leftArray) && is_callable(array($leftArray[$leftCursor], 'isOptionalInTemplate')) && $leftArray[$leftCursor]->isOptionalInTemplate()) $leftCursor++;
+            while ($rightCursor < count($rightArray) && is_callable(array($rightArray[$rightCursor], 'isOptionalInTemplate')) && $rightArray[$rightCursor]->isOptionalInTemplate()) $rightCursor++;
+            if ($leftCursor < count($leftArray) || $rightCursor < count($rightArray)) {
+                return false; // Leftover in either left or right
             }
-            if (is_callable(array($rightArray[$rightCursor], 'isOptionalInTemplate')) && $rightArray[$rightCursor]->isOptionalInTemplate()) {
-                $rightCursor++;
-                continue;
+            return true;
+        } else {
+            // When there are no optionals, match left and right pairwise regardless of order
+            foreach ($leftArray as $left) {
+                foreach ($rightArray as $index => $right) {
+                    if (static::matchesTemplateOrIsVariable($left, $right)) {
+                        $matched = true;
+                        unset($rightArray[$index]);
+                        $rightArray = array_values($rightArray);
+                        continue 2;
+                    }
+                }
+                return false;
             }
-            
-            // No match and no optional content to consume
-            return false;
+            return count($rightArray) == 0;
         }
-        // Consume remaining optionals
-        while ($leftCursor < count($leftArray) && is_callable(array($leftArray[$leftCursor], 'isOptionalInTemplate')) && $leftArray[$leftCursor]->isOptionalInTemplate()) $leftCursor++;
-        while ($rightCursor < count($rightArray) && is_callable(array($rightArray[$rightCursor], 'isOptionalInTemplate')) && $rightArray[$rightCursor]->isOptionalInTemplate()) $rightCursor++;
-        if ($leftCursor < count($leftArray) || $rightCursor < count($rightArray)) {
-            return false; // Leftover in either left or right
-        }
-        return true;
     }
     public function matchesTemplate($template) {
         return $this->commands->matchesTemplate($template->commands);
