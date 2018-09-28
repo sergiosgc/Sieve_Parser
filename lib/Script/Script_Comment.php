@@ -10,6 +10,9 @@ class Script_Comment {
     public function __construct($text = '') {
         $this->text = $text;
     }
+    public static function create($text = '') {
+        return new Script_Comment($text);
+    }
     public function __toString() {
         if ($this->encoding == self::ENCODING_AUTO) $this->encoding = strpos($this->text, "\n") !== FALSE ? self::ENCODING_HASH : self::ENCODING_MULTILINE;
         if ($this->encoding == self::ENCODING_HASH) return preg_replace('_^_m', '#', (string) $this->text);
