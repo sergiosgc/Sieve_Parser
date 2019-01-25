@@ -3,6 +3,7 @@ namespace sergiosgc\Sieve_Parser;
 
 class Script_Argument_Block implements Script_Argument {
     public $commands;
+    public function commandTerminator() { return ''; }
     public function __construct($commands = []) {
         $this->commands = $commands;
     }

@@ -3,6 +3,7 @@ namespace sergiosgc\Sieve_Parser;
 
 class Script_Argument_Test extends Script_Command_Generic implements Script_Argument {
     
+    public function commandTerminator() { return ''; }
     public function __construct($identifier, $args = []) {
         parent::__construct($identifier, $args);
     }

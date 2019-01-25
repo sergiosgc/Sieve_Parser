@@ -5,6 +5,7 @@ abstract class Script_Command {
     public abstract function getComment();
     public abstract function getIdentifier();
     public abstract function getArguments();
+    public function commandTerminator() { return ';'; }
     public static function create() {
         $args = func_get_args();
         $identifier = func_get_args()[0];
