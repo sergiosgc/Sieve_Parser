@@ -8,12 +8,13 @@ abstract class Script_Command {
     public function commandTerminator() { return ';'; }
     public static function create() {
         $args = func_get_args();
-        $identifier = func_get_args()[0];
-        $className = sprintf('sergiosgc\Sieve_Parser\Script_Command_%s%s', strtoupper($identifier[0]), substr($identifier, 1));
+        $classIdentifier = func_get_args()[0];
+        if ($classIdentifier == 'else' || $classIdentifier == 'elsif') $classIdentifier = 'if';
+        $className = sprintf('sergiosgc\Sieve_Parser\Script_Command_%s%s', strtoupper($classIdentifier[0]), substr($classIdentifier, 1));
         if (class_exists($className, true)) {
             return new $className(...$args);
         }
-        $className = sprintf('sergiosgc\Sieve_Parser\Script_Argument_Test_%s%s', strtoupper($identifier[0]), substr($identifier, 1));
+        $className = sprintf('sergiosgc\Sieve_Parser\Script_Argument_Test_%s%s', strtoupper($classIdentifier[0]), substr($classIdentifier, 1));
         if (class_exists($className, true)) {
             return new $className(...$args);
         }
