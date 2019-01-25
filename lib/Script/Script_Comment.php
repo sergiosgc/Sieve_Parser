@@ -15,8 +15,8 @@ class Script_Comment {
     }
     public function __toString() {
         if ($this->encoding == self::ENCODING_AUTO) $this->encoding = strpos($this->text, "\n") !== FALSE ? self::ENCODING_HASH : self::ENCODING_MULTILINE;
-        if ($this->encoding == self::ENCODING_HASH) return preg_replace('_^_m', '#', (string) $this->text);
-        return sprintf('/*%s*/', preg_replace('_\\*/_', '', (string) $this->text));
+        if ($this->encoding == self::ENCODING_HASH) return rtrim(preg_replace('_^_m', '#', (string) $this->text)) . "\r\n";
+        return sprintf('/*%s*/', preg_replace('_\\*/_', '', (string) $this->text)) . "\r\n";
     }
     public function templateVariables() {
         if (!preg_match('_.*---TEMPLATE VARIABLES---(.*)---TEMPLATE VARIABLES---.*_ms', $this->text, $matches)) return [];
