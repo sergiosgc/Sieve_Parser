@@ -20,6 +20,12 @@ abstract class Script_Command {
         }
         return new Script_Command_Generic(...$args);
     }
+    public static function argumentToString($argument) {
+        if (is_object($argument)) return (string) $argument;
+        if (is_array($argument)) return sprintf('[%s]', implode(', ', array_map(function($s) { return sprintf('"%s"', strtr($s, [ '"' => '\\"' ])); }, $argument)));
+
+        return sprintf('"%s"', strtr($argument, [ '"' => '\\"' ]));
+    }
     public function __toString() {
         $terminator = ';';
         if ($this instanceof Script_Argument_Test) $terminator = '';
