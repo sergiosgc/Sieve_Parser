@@ -2,14 +2,17 @@
 namespace sergiosgc\Sieve_Parser;
 
 class Script_Command_Generic extends Script_Command {
-    private $identifier;
-    private $arguments = [];
-    private $comment = null;
+    protected $identifier;
+    protected $arguments = [];
+    protected $comment = null;
     public function getIdentifier() {
         return $this->identifier;
     }
     public function getArguments() {
         return $this->arguments;
+    }
+    public function setArguments(array $args) {
+        $this->arguments = $args;
     }
     public function setComment(Script_Comment $comment) {
         $this->comment = $comment;
