@@ -27,36 +27,19 @@ abstract class Script_Command {
         return sprintf('"%s"', strtr($argument, [ '"' => '\\"' ]));
     }
     public function __toString() {
-        $terminator = ';';
-        if ($this instanceof Script_Argument_Test) $terminator = '';
-        if (count($this->getArguments()) && (
-            $this->getArguments()[count($this->getArguments())-1] instanceof Script_Argument_Block ||
-            $this->getArguments()[count($this->getArguments())-1] instanceof Script_Argument_Test)) $terminator = '';
-        if (array_reduce(
-            array_map(
-                function($obj) { return $obj instanceof Script_Argument_Test; }, 
-                $this->getArguments()
-            ),
-            function($carry, $item) { return $carry && $item; },
-            true
-        ) && count($this->getArguments()) > 1) { // Every argument is a test
-            return sprintf('%s%s (%s)%s',
-                (string) $this->getComment(),
-                (string) $this->getIdentifier(),
-                implode(', ', array_map(function ($obj) { return (string) $obj; }, $this->getArguments())),
-                $terminator);
-        } else {
-            return sprintf('%s%s%s',
-                (string) $this->getComment(),
-                implode(' ', array_map(function ($obj) { return (string) $obj; }, 
-                    array_merge(
-                        [ $this->getIdentifier() ],
-                        $this->getArguments()
-                    )
-                )),
-                $terminator
-            );
-        }
+        $result = $this->getComment() ? ($this->getComment() ) : '';
+        $result .= (string) $this->getIdentifier();
+        if (count($this->getArguments())) $result .= ' ';
+        $terminator = ($this instanceof Script_Argument_Test) ? '' : ';';
+        $isTestList = (0 == count(array_filter($this->getArguments(), function($arg) { return !($arg instanceof Script_Argument_Test); }))) && count($this->getArguments());
+        $result .= sprintf($isTestList ? '(%s)' : '%s', 
+            implode(
+                $isTestList ? ', ' : ' ',
+                array_map(['\sergiosgc\Sieve_Parser\Script_Command', 'argumentToString'], $this->getArguments())
+            ));
+        $result .= $this->commandTerminator();
+
+        return $result;
     }
 }
 
