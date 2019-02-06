@@ -24,7 +24,14 @@ abstract class Script_Command {
         if (is_object($argument)) return (string) $argument;
         if (is_array($argument)) return sprintf('[%s]', implode(', ', array_map(function($s) { return sprintf('"%s"', strtr($s, [ '"' => '\\"' ])); }, $argument)));
 
-        return sprintf('"%s"', strtr($argument, [ '"' => '\\"' ]));
+        $unescaped = (string) $argument;
+        if (strlen($unescaped) > 100) {
+            return sprintf("text:\r\n%s\r\n.\r\n",
+                preg_replace('_^\\._m', '..', $unescaped)
+            );
+        } else {
+            return sprintf('"%s"', strtr($unescaped, [ '\\' => '\\\\', '"' => '\\"' ]));
+        }
     }
     public function isTemplateOptional() {
         return Script_Template::isOptional($this->getIdentifier());
