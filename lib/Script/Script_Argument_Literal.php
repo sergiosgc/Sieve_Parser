@@ -14,6 +14,7 @@ class Script_Argument_Literal implements Script_Argument {
         if (is_string($literal)) return $literal;
         if ($literal instanceof Script_Argument_Literal) return $literal->value;
         if (is_array($literal)) return array_map([ '\sergiosgc\Sieve_Parser\Script_Argument_Literal', 'value' ], $literal);
+        if (is_null($literal)) return '';
         throw new \Exception('Script_Argument_Literal::value can only process strings or Script_Argument_Literal');
     }
     public function __toString() {
