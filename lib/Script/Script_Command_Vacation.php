@@ -125,5 +125,16 @@ class Script_Command_Vacation extends Script_Command {
             }
         }
     }
+    public function __toString() {
+        $result = 'vacation';
+        if (!is_null($this->days)) $result .= sprintf(' :days %s', (int) $this->days);
+        if (!is_null($this->subject)) $result .= sprintf(' :subject %s', static::argumentToString($this->subject));
+        if (!is_null($this->from)) $result .= sprintf(' :from %s', static::argumentToString($this->from));
+        if (!is_null($this->addresses)) $result .= sprintf(' :addresses %s', static::argumentToString($this->addresses));
+        if ($this->mime) $result .= ' :mime';
+        if (!is_null($this->handle)) $result .= sprintf(' :handle %s', static::argumentToString($this->handle));
+        $result .= sprintf(' %s', static::argumentToString($this->reason));
+        return $result;
+    }
 }
 
